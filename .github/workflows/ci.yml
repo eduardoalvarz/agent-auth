@@ -30,11 +30,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: "yarn"
+          cache: "pnpm"
       - name: Install dependencies
-        run: yarn install --immutable --mode=skip-build
+        run: pnpm install --frozen-lockfile
       - name: Check formatting
-        run: yarn format:check
+        run: pnpm format:check
 
   lint:
     name: Check linting
@@ -47,11 +47,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: "yarn"
+          cache: "pnpm"
       - name: Install dependencies
-        run: yarn install --immutable --mode=skip-build
+        run: pnpm install --frozen-lockfile
       - name: Check linting
-        run: yarn run lint
+        run: pnpm run lint
 
   readme-spelling:
     name: Check README spelling
@@ -88,15 +88,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: "yarn"
+          cache: "pnpm"
       - name: Install dependencies
-        run: yarn install --immutable
+        run: pnpm install --frozen-lockfile
         working-directory: .
       - name: Build all packages
-        run: yarn build
+        run: pnpm build
         working-directory: .
       - name: Build dev server check script
-        run: yarn tsc --module commonjs --outDir ./dist/scripts ./scripts/check-dev-server.ts
+        run: pnpm tsc --module commonjs --outDir ./dist/scripts ./scripts/check-dev-server.ts
       - name: Rename compiled script to .cjs
         run: mv ./dist/scripts/check-dev-server.js ./dist/scripts/check-dev-server.cjs
       - name: Create .env file for dev server check
@@ -119,8 +119,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: "yarn"
+          cache: "pnpm"
       - name: Install dependencies
-        run: yarn install --immutable
+        run: pnpm install --frozen-lockfile
       - name: Build all packages
-        run: yarn build
+        run: pnpm build
