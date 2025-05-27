@@ -86,7 +86,7 @@ End setup instructions
 ## How to customize
 
 1. **Add new tools**: Extend the agent's capabilities by adding new tools in `src/react_agent/tools.ts`. These can be any TypeScript functions that perform specific tasks.
-2. **Select a different model**: We default to Anthropic's Claude 3.5 Sonnet. You can select a compatible chat model using `provider/model-name` via configuration, then installing the proper [chat model integration package](https://js.langchain.com/docs/integrations/chat/). Example: `openai/gpt-4-turbo-preview`, then run `npm i @langchain/openai`.
+2. **Select a different model**: We default to Anthropic's Claude 3.5 Sonnet. You can select a compatible chat model using `provider/model-name` via configuration, then installing the proper [chat model integration package](https://js.langchain.com/docs/integrations/chat/). Example: `openai/gpt-4-turbo-preview`, then run `pnpm add @langchain/openai`.
 3. **Customize the prompt**: We provide a default system prompt in `src/react_agent/prompts.ts`. You can easily update this via configuration in the studio.
 
 You can also quickly extend this template by:

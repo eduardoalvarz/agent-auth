@@ -28,7 +28,7 @@ pnpm dev
 
 ## 📦 Package Management
 
-This monorepo uses **pnpm workspaces** with **Turborepo** for build orchestration. We've standardized on pnpm across both applications (previously one used yarn).
+This monorepo uses **pnpm workspaces** for efficient dependency management and task orchestration.
 
 ### Available Scripts
 
@@ -36,7 +36,7 @@ This monorepo uses **pnpm workspaces** with **Turborepo** for build orchestratio
 
 ```bash
 # Development
-pnpm dev              # Start all apps in development mode
+pnpm dev              # Start all apps in development mode (parallel)
 pnpm build            # Build all apps
 pnpm lint             # Lint all apps
 pnpm lint:fix         # Fix linting issues in all apps
@@ -80,7 +80,7 @@ pnpm --filter agents add dotenv
 │       ├── package.json
 │       └── ...
 ├── package.json             # Root package.json with workspaces
-├── turbo.json              # Turborepo configuration
+├── pnpm-workspace.yaml     # pnpm workspace configuration
 ├── .npmrc                  # pnpm configuration
 └── README.md
 ```
@@ -99,7 +99,7 @@ pnpm --filter agents add dotenv
 - **Framework**: LangGraph.js
 - **AI**: LangChain + Anthropic
 - **Testing**: Jest
-- **Package Manager**: pnpm (migrated from yarn)
+- **Package Manager**: pnpm
 
 ## 🔧 Development Workflow
 
@@ -162,4 +162,4 @@ Each app can be deployed independently:
 This monorepo was created by combining two separate repositories:
 - The agents app was migrated from yarn to pnpm
 - Both apps now use consistent tooling and scripts
-- Turborepo provides efficient build caching and task orchestration 
+- pnpm workspaces provide efficient build caching and task orchestration 

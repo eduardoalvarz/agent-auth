@@ -10,8 +10,6 @@ dist
 !.yarn/sdks
 !.yarn/versions
 
-.turbo
-**/.turbo
 **/.eslintcache
 
 .env

@@ -20,7 +20,7 @@ git clone https://github.com/starmorph/fullstack-chat-client
 ```bash
 1. cp .env.example .env
 2. fill out env
-3. yarn
+3. pnpm install
 4. npx @langchain/langgraph-cli dev --no-browser
 ```
 
@@ -29,7 +29,7 @@ git clone https://github.com/starmorph/fullstack-chat-client
 ```bash
 1. cp .env.example .env
 2. fill out env
-3. pnpm i && pnpm dev
+3. pnpm install && pnpm dev
 ```
 
 ### Terminal Tab 3: Stripe Webhook (for purchases + credits)
