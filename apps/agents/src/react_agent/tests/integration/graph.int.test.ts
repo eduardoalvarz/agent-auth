@@ -1,4 +1,3 @@
-import { it } from "@jest/globals";
 import { BaseMessage } from "@langchain/core/messages";
 
 import { graph } from "../../graph.js";

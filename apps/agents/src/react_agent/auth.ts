@@ -21,7 +21,7 @@ export const auth = new Auth()
     }
     // Detailed logging for debugging
     const headersObj: Record<string, string> = {};
-    for (const [key, value] of request.headers as any) {
+    for (const [key, value] of Object.entries(request.headers)) {
       headersObj[key] = value;
     }
     console.log("[auth] Incoming request", {
@@ -113,21 +113,21 @@ export const auth = new Auth()
 
     return { owner: user.identity };
   })
-  .on("threads:update", ({ user, permissions }) => {
+  .on("threads:update", ({ user }) => {
     if (user.identity === STUDIO_USER_ID) {
       return;
     }
 
     return { owner: user.identity };
   })
-  .on("threads:delete", ({ user, permissions }) => {
+  .on("threads:delete", ({ user }) => {
     if (user.identity === STUDIO_USER_ID) {
       return;
     }
 
     return { owner: user.identity };
   })
-  .on("threads:search", ({ user, permissions }) => {
+  .on("threads:search", ({ user }) => {
     if (user.identity === STUDIO_USER_ID) {
       return;
     }
@@ -165,7 +165,7 @@ export const auth = new Auth()
     }
     return { owner: user.identity };
   })
-  .on("assistants:search", ({ user, value }) => {
+  .on("assistants:search", ({ user }) => {
     if (user.identity === STUDIO_USER_ID) {
       return;
     }

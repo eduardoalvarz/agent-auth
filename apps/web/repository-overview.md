@@ -59,31 +59,31 @@ graph TB
     UI --> THREAD
     AUTH_UI --> SUPABASE
     PRICING --> CHECKOUT
-    
+
     SUPABASE --> AUTH_MW
     AUTH_MW --> UI
     AUTH_CB --> SUPABASE
-    
+
     THREAD --> AGENT_INBOX
     AGENT_INBOX --> MESSAGES
     AGENT_INBOX --> ARTIFACTS
-    
+
     THREAD --> GRAPH_API
     GRAPH_API --> GRAPHS
     GRAPHS --> TOOLS
     GRAPHS --> INTERRUPTS
     GRAPHS --> STREAM
-    
+
     NAVBAR --> CREDIT_BAL
     CREDIT_BAL --> CREDIT_API
     CREDIT_HOOK --> USER_API
-    
+
     CHECKOUT --> PAYMENT_API
     PAYMENT_API --> WEBHOOKS
     WEBHOOKS --> WEBHOOK_API
     WEBHOOKS --> CREDIT_API
     SUCCESS --> PRICING
-    
+
     %% Styling
     classDef frontend fill:#e1f5fe
     classDef auth fill:#f3e5f5
@@ -92,7 +92,7 @@ graph TB
     classDef credits fill:#fce4ec
     classDef payments fill:#e0f2f1
     classDef api fill:#f5f5f5
-    
+
     class UI,AUTH_UI,PRICING,NAVBAR frontend
     class SUPABASE,AUTH_MW,AUTH_CB auth
     class THREAD,AGENT_INBOX,MESSAGES,ARTIFACTS chat
@@ -120,13 +120,13 @@ graph TB
         SIGNUP_PAGE[Sign Up Page<br/>/signup]
         SIGNIN_FORM[SignIn Component<br/>features/signin]
         SIGNUP_FORM[SignUp Component<br/>features/signup]
-        
+
         subgraph "Supabase Auth"
             SUPABASE_CLIENT[Supabase Client<br/>lib/auth/supabase-client]
             SUPABASE_SERVER[Supabase Server<br/>lib/auth/supabase-server]
             AUTH_UTILS[Auth Utils<br/>lib/auth/supabase-utils]
         end
-        
+
         AUTH_CALLBACK[Auth Callback<br/>api/auth/callback]
         AUTH_MIDDLEWARE[Auth Middleware<br/>lib/auth/middleware]
     end
@@ -144,7 +144,7 @@ graph TB
         CREDIT_BALANCE_COMP[Credit Balance Component<br/>components/credits/credit-balance]
         CREDIT_HOOK[Credit Deduction Hook<br/>hooks/use-credit-deduction]
         CREDIT_API_ROUTE[Credits API Route<br/>api/user/credits]
-        
+
         subgraph "Credit Operations"
             CHECK_BALANCE[Check Balance]
             DEDUCT_CREDITS[Deduct Credits]
@@ -160,7 +160,7 @@ graph TB
         STRIPE_CHECKOUT[Stripe Checkout]
         STRIPE_WEBHOOK[Stripe Webhook<br/>api/webhooks/stripe]
         SUCCESS_PAGE[Success Page<br/>/success]
-        
+
         subgraph "Stripe Operations"
             CREATE_SESSION[Create Checkout Session]
             PROCESS_PAYMENT[Process Payment]
@@ -181,35 +181,35 @@ graph TB
     VISITOR --> SIGNIN_PAGE
     VISITOR --> SIGNUP_PAGE
     RETURNING --> AUTH_MIDDLEWARE
-    
+
     SIGNIN_PAGE --> SIGNIN_FORM
     SIGNUP_PAGE --> SIGNUP_FORM
-    
+
     SIGNIN_FORM --> SUPABASE_CLIENT
     SIGNUP_FORM --> SUPABASE_CLIENT
-    
+
     SUPABASE_CLIENT --> AUTH_CALLBACK
     AUTH_CALLBACK --> SUPABASE_SERVER
     SUPABASE_SERVER --> AUTH_UTILS
-    
+
     AUTH_UTILS --> SESSION_STATE
     SESSION_STATE --> AUTH_PROVIDER
     AUTH_PROVIDER --> USER_STATUS
-    
+
     AUTH_MIDDLEWARE --> AUTH_PROVIDER
-    
+
     %% Flow Connections - Credits
     AUTH_PROVIDER --> CREDIT_PROVIDER
     CREDIT_PROVIDER --> CREDIT_BALANCE_COMP
     CREDIT_BALANCE_COMP --> CHECK_BALANCE
     CHECK_BALANCE --> CREDIT_API_ROUTE
-    
+
     CREDIT_HOOK --> VALIDATE_CREDITS
     VALIDATE_CREDITS --> DEDUCT_CREDITS
     DEDUCT_CREDITS --> CREDIT_API_ROUTE
     CREDIT_API_ROUTE --> UPDATE_BALANCE
     UPDATE_BALANCE --> CREDIT_PROVIDER
-    
+
     %% Flow Connections - Payments
     CREDIT_BALANCE_COMP --> PRICING_PAGE
     PRICING_PAGE --> CHECKOUT_API
@@ -221,13 +221,13 @@ graph TB
     WEBHOOK_VERIFY --> ADD_CREDITS
     ADD_CREDITS --> CREDIT_API_ROUTE
     STRIPE_CHECKOUT --> SUCCESS_PAGE
-    
+
     %% Database Connections
     SUPABASE_SERVER --> SUPABASE_DB
     AUTH_UTILS --> USER_TABLE
     CREDIT_API_ROUTE --> CREDITS_TABLE
     STRIPE_WEBHOOK --> TRANSACTIONS_TABLE
-    
+
     USER_TABLE --> SUPABASE_DB
     CREDITS_TABLE --> SUPABASE_DB
     TRANSACTIONS_TABLE --> SUPABASE_DB
@@ -240,7 +240,7 @@ graph TB
     classDef payments fill:#e0f2f1
     classDef database fill:#fff3e0
     classDef operations fill:#f5f5f5
-    
+
     class VISITOR,RETURNING entry
     class SIGNIN_PAGE,SIGNUP_PAGE,SIGNIN_FORM,SIGNUP_FORM,SUPABASE_CLIENT,SUPABASE_SERVER,AUTH_UTILS,AUTH_CALLBACK,AUTH_MIDDLEWARE auth
     class AUTH_PROVIDER,USER_STATUS,SESSION_STATE session
@@ -253,34 +253,40 @@ graph TB
 ## Key Components Overview
 
 ### 🔐 Authentication
+
 - **Supabase Auth**: Handles user authentication and session management
 - **Auth Middleware**: Protects routes and manages user sessions
 - **Auth Pages**: Sign-in and sign-up user interfaces
 
 ### 💬 Chat System
+
 - **Thread Management**: Organizes conversation flows
 - **Agent Inbox**: Handles AI agent interactions with interrupt capabilities
 - **Message Components**: Renders different message types (AI, Human, Tool calls)
 - **Artifacts**: Displays rich content and previews
 
 ### 🤖 LangGraph Integration
+
 - **Graph Deployments**: Connects to LangGraph JS SDK for AI workflows
 - **Tool Calls**: Executes and displays tool interactions
 - **Interrupt Handling**: Manages conversation interrupts and user input
 - **Streaming**: Real-time response streaming
 
 ### 🪙 Credits System
+
 - **Credit Balance**: Displays user's available credits
 - **Credit Deduction**: Automatically deducts credits for AI interactions
 - **Credits API**: Manages credit transactions and balance updates
 
 ### 💳 Payments (Stripe)
+
 - **Checkout Sessions**: Handles payment processing
 - **Webhooks**: Processes payment confirmations
 - **Success Flow**: Confirms successful purchases and credit additions
 
 ### 🔌 API Layer
+
 - **Graph API**: Proxies requests to LangGraph deployments
 - **User/Credits API**: Manages user data and credit operations
 - **Payment APIs**: Handles Stripe integration
-- **Webhook Handlers**: Processes external service callbacks 
+- **Webhook Handlers**: Processes external service callbacks
