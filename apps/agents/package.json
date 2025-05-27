@@ -10,7 +10,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch",
+    "dev": "npx @langchain/langgraph-cli dev --no-browser",
     "clean": "rm -rf dist",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern=\\.test\\.ts$ --testPathIgnorePatterns=\\.int\\.test\\.ts$",
     "test:int": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern=\\.int\\.test\\.ts$",
