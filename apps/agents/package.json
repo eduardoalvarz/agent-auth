@@ -1,0 +1,48 @@
+{
+  "name": "agents",
+  "version": "0.0.1",
+  "packageManager": "pnpm@10.5.1",
+  "description": "A template containing a LangGraph.js ReAct agent.",
+  "main": "src/react_agent/graph.ts",
+  "author": "Your Name",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern=\\.test\\.ts$ --testPathIgnorePatterns=\\.int\\.test\\.ts$",
+    "test:int": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testPathPattern=\\.int\\.test\\.ts$",
+    "lint": "eslint src",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@langchain/anthropic": "^0.3.12",
+    "@langchain/community": "^0.3.27",
+    "@langchain/core": "^0.3.37",
+    "@langchain/langgraph": "^0.2.57",
+    "@langchain/langgraph-sdk": "^0.0.77",
+    "@supabase/supabase-js": "^2.49.7",
+    "dotenv": "^16.5.0",
+    "langchain": "^0.3.14"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.9.1",
+    "@tsconfig/recommended": "^1.0.7",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^22.15.21",
+    "@typescript-eslint/eslint-plugin": "^5.59.8",
+    "@typescript-eslint/parser": "^5.59.8",
+    "eslint": "^8.41.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-no-instanceof": "^1.0.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "jest": "^29.7.0",
+    "prettier": "^3.3.3",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.3.3"
+  }
+}

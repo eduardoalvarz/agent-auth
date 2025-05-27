@@ -45,3 +45,10 @@ credentials.json
 
 # LangGraph API
 .langgraph_api
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# OS
+Thumbs.db
