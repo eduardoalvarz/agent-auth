@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "packageManager": "pnpm@10.5.1",
   "description": "A template containing a LangGraph.js ReAct agent.",
-  "main": "src/react_agent/graph.ts",
+  "main": "src/graph.ts",
   "author": "Your Name",
   "license": "MIT",
   "private": true,

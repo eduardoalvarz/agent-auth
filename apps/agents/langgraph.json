@@ -3,10 +3,10 @@
   "dockerfile_lines": [],
   "dependencies": ["."],
   "graphs": {
-    "agent": "./src/react_agent/graph.ts:graph"
+    "agent": "./src/graph.ts:graph"
   },
   "env": ".env",
   "auth": {
-    "path": "./src/react_agent/auth.ts:auth"
+    "path": "./src/auth.ts:auth"
   }
 }

@@ -10,7 +10,7 @@ This template showcases a [ReAct agent](https://arxiv.org/abs/2210.03629) implem
 
 ![Graph view in LangGraph studio UI](./static/studio_ui.png)
 
-The core logic, defined in `src/react_agent/graph.ts`, demonstrates a flexible ReAct agent that iteratively reasons about user queries and executes actions, showcasing the power of this approach for complex problem-solving tasks.
+The core logic, defined in `src/graph.ts`, demonstrates a flexible ReAct agent that iteratively reasons about user queries and executes actions, showcasing the power of this approach for complex problem-solving tasks.
 
 ## What it does
 
@@ -36,7 +36,7 @@ cp .env.example .env
 
 2. Define required API keys in your `.env` file.
 
-The primary [search tool](./src/react_agent/tools.py) [^1] used is [Tavily](https://tavily.com/). Create an API key [here](https://app.tavily.com/sign-in).
+The primary [search tool](./src/tools.py) [^1] used is [Tavily](https://tavily.com/). Create an API key [here](https://app.tavily.com/sign-in).
 
 <
 
@@ -85,18 +85,18 @@ End setup instructions
 
 ## How to customize
 
-1. **Add new tools**: Extend the agent's capabilities by adding new tools in `src/react_agent/tools.ts`. These can be any TypeScript functions that perform specific tasks.
+1. **Add new tools**: Extend the agent's capabilities by adding new tools in `src/tools.ts`. These can be any TypeScript functions that perform specific tasks.
 2. **Select a different model**: We default to Anthropic's Claude 3.5 Sonnet. You can select a compatible chat model using `provider/model-name` via configuration, then installing the proper [chat model integration package](https://js.langchain.com/docs/integrations/chat/). Example: `openai/gpt-4-turbo-preview`, then run `pnpm add @langchain/openai`.
-3. **Customize the prompt**: We provide a default system prompt in `src/react_agent/prompts.ts`. You can easily update this via configuration in the studio.
+3. **Customize the prompt**: We provide a default system prompt in `src/prompts.ts`. You can easily update this via configuration in the studio.
 
 You can also quickly extend this template by:
 
-- Modifying the agent's reasoning process in `src/react_agent/graph.ts`.
+- Modifying the agent's reasoning process in `src/graph.ts`.
 - Adjusting the ReAct loop or adding additional steps to the agent's decision-making process.
 
 ## Development
 
-While iterating on your graph, you can edit past state and rerun your app from past states to debug specific nodes. Local changes will be automatically applied via hot reload. Try adding an interrupt before the agent calls tools, updating the default system message in `src/react_agent/configuration.ts` to take on a persona, or adding additional nodes and edges!
+While iterating on your graph, you can edit past state and rerun your app from past states to debug specific nodes. Local changes will be automatically applied via hot reload. Try adding an interrupt before the agent calls tools, updating the default system message in `src/configuration.ts` to take on a persona, or adding additional nodes and edges!
 
 Follow up requests will be appended to the same thread. You can create an entirely new thread, clearing previous history, using the `+` button in the top right.
 
