@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.5.1",
-  "description": "Fullstack chat application with LangGraph agents and Next.js UI",
+  "description": "an open source fullstack chat app with supabase auth, LLM request credits, and stripe for payments built in",
   "scripts": {
     "build": "pnpm -r build",
     "dev": "pnpm -r --parallel dev",
@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-username/fullstack-chat-repo.git"
+    "url": "git+https://github.com/langchain-ai/fullstack-chat-repo.git"
   },
   "keywords": [
     "langgraph",
