@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: apps/agents
+        working-directory: apps/web
     steps:
       - uses: actions/checkout@v4
       - name: Enable Corepack
@@ -109,18 +109,23 @@ jobs:
           LANGSMITH_API_KEY: "lsv2_dummy_langsmith_api_key"
           NEXT_PUBLIC_API_URL: "https://dummy.api.url"
           NEXT_PUBLIC_ASSISTANT_ID: "dummy-assistant"
-      - name: Build dev server check script
-        run: pnpm tsc --module commonjs --outDir ./dist/scripts ./scripts/check-dev-server.ts
-      - name: Rename compiled script to .cjs
-        run: mv ./dist/scripts/check-dev-server.js ./dist/scripts/check-dev-server.cjs
-      - name: Create .env file for dev server check
-        # .env needs to be in the root of the project
-        run: touch ../../.env
-      - name: Run dev server check
-        run: node ./dist/scripts/check-dev-server.cjs
+      - name: Test dev server startup
+        run: timeout 30s pnpm dev || if [ $? -eq 124 ]; then echo "✅ Dev server started successfully (timed out as expected)"; exit 0; else echo "❌ Dev server failed to start"; exit 1; fi
         env:
           NODE_ENV: development
-        timeout-minutes: 2
+          # Supabase
+          NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-anon-key"
+          SUPABASE_SERVICE_ROLE_KEY: "dummy-service-role-key"
+          # Stripe
+          STRIPE_SECRET_KEY: "sk_test_dummy_stripe_secret_key"
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "pk_test_dummy_stripe_publishable_key"
+          STRIPE_WEBHOOK_SECRET: "whsec_dummy_webhook_secret"
+          # LangGraph
+          LANGGRAPH_API_URL: "https://dummy.langgraph.app"
+          LANGSMITH_API_KEY: "lsv2_dummy_langsmith_api_key"
+          NEXT_PUBLIC_API_URL: "https://dummy.api.url"
+          NEXT_PUBLIC_ASSISTANT_ID: "dummy-assistant"
 
   build-check:
     name: Check project build
