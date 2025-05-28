@@ -96,9 +96,19 @@ jobs:
         run: pnpm build
         working-directory: .
         env:
+          # Supabase
           NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-anon-key"
           SUPABASE_SERVICE_ROLE_KEY: "dummy-service-role-key"
+          # Stripe
+          STRIPE_SECRET_KEY: "sk_test_dummy_stripe_secret_key"
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "pk_test_dummy_stripe_publishable_key"
+          STRIPE_WEBHOOK_SECRET: "whsec_dummy_webhook_secret"
+          # LangGraph
+          LANGGRAPH_API_URL: "https://dummy.langgraph.app"
+          LANGSMITH_API_KEY: "lsv2_dummy_langsmith_api_key"
+          NEXT_PUBLIC_API_URL: "https://dummy.api.url"
+          NEXT_PUBLIC_ASSISTANT_ID: "dummy-assistant"
       - name: Build dev server check script
         run: pnpm tsc --module commonjs --outDir ./dist/scripts ./scripts/check-dev-server.ts
       - name: Rename compiled script to .cjs
@@ -129,6 +139,16 @@ jobs:
       - name: Build all packages
         run: pnpm build
         env:
+          # Supabase
           NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-anon-key"
           SUPABASE_SERVICE_ROLE_KEY: "dummy-service-role-key"
+          # Stripe
+          STRIPE_SECRET_KEY: "sk_test_dummy_stripe_secret_key"
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "pk_test_dummy_stripe_publishable_key"
+          STRIPE_WEBHOOK_SECRET: "whsec_dummy_webhook_secret"
+          # LangGraph
+          LANGGRAPH_API_URL: "https://dummy.langgraph.app"
+          LANGSMITH_API_KEY: "lsv2_dummy_langsmith_api_key"
+          NEXT_PUBLIC_API_URL: "https://dummy.api.url"
+          NEXT_PUBLIC_ASSISTANT_ID: "dummy-assistant"
