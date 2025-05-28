@@ -95,6 +95,10 @@ jobs:
       - name: Build all packages
         run: pnpm build
         working-directory: .
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-anon-key"
+          SUPABASE_SERVICE_ROLE_KEY: "dummy-service-role-key"
       - name: Build dev server check script
         run: pnpm tsc --module commonjs --outDir ./dist/scripts ./scripts/check-dev-server.ts
       - name: Rename compiled script to .cjs
@@ -124,3 +128,7 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Build all packages
         run: pnpm build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-anon-key"
+          SUPABASE_SERVICE_ROLE_KEY: "dummy-service-role-key"
