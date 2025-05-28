@@ -6,6 +6,30 @@ const supabase = getSupabaseClient();
 
 const STUDIO_USER_ID = "langgraph-studio-user";
 
+// Helper function to check if user is studio user
+const isStudioUser = (userIdentity: string): boolean => {
+  return userIdentity === STUDIO_USER_ID;
+};
+
+// Helper function for operations that only need owner filtering
+const createOwnerFilter = (user: { identity: string }) => {
+  if (isStudioUser(user.identity)) {
+    return;
+  }
+  return { owner: user.identity };
+};
+
+// Helper function for create operations that set metadata
+const createWithOwnerMetadata = (value: any, user: { identity: string }) => {
+  if (isStudioUser(user.identity)) {
+    return;
+  }
+
+  value.metadata ??= {};
+  value.metadata.owner = user.identity;
+  return { owner: user.identity };
+};
+
 export const auth = new Auth()
   .authenticate(async (request: Request) => {
     if (request.method === "OPTIONS") {
@@ -82,91 +106,31 @@ export const auth = new Auth()
     };
   })
 
-  .on("threads:create", ({ value, user }) => {
-    if (user.identity === STUDIO_USER_ID) {
-      return;
-    }
+  // THREADS: create operations with metadata
+  .on("threads:create", ({ value, user }) =>
+    createWithOwnerMetadata(value, user),
+  )
+  .on("threads:create_run", ({ value, user }) =>
+    createWithOwnerMetadata(value, user),
+  )
 
-    value.metadata ??= {};
-    value.metadata.owner = user.identity;
-    return { owner: user.identity };
-  })
-  // THREADS: create_run
-  .on("threads:create_run", ({ value, user }) => {
-    if (user.identity === STUDIO_USER_ID) {
-      return;
-    }
+  // THREADS: read, update, delete, search operations
+  .on("threads:read", ({ user }) => createOwnerFilter(user))
+  .on("threads:update", ({ user }) => createOwnerFilter(user))
+  .on("threads:delete", ({ user }) => createOwnerFilter(user))
+  .on("threads:search", ({ user }) => createOwnerFilter(user))
 
-    value.metadata ??= {};
-    value.metadata.owner = user.identity;
-    return { owner: user.identity };
-  })
-  // THREADS: read, update, delete, search
-  .on("threads:read", ({ user }) => {
-    if (user.identity === STUDIO_USER_ID) {
-      return;
-    }
+  // ASSISTANTS: create operation with metadata
+  .on("assistants:create", ({ value, user }) =>
+    createWithOwnerMetadata(value, user),
+  )
 
-    return { owner: user.identity };
-  })
-  .on("threads:update", ({ user }) => {
-    if (user.identity === STUDIO_USER_ID) {
-      return;
-    }
+  // ASSISTANTS: read, update, delete, search operations
+  .on("assistants:read", ({ user }) => createOwnerFilter(user))
+  .on("assistants:update", ({ user }) => createOwnerFilter(user))
+  .on("assistants:delete", ({ user }) => createOwnerFilter(user))
+  .on("assistants:search", ({ user }) => createOwnerFilter(user))
 
-    return { owner: user.identity };
-  })
-  .on("threads:delete", ({ user }) => {
-    if (user.identity === STUDIO_USER_ID) {
-      return;
-    }
-
-    return { owner: user.identity };
-  })
-  .on("threads:search", ({ user }) => {
-    if (user.identity === STUDIO_USER_ID) {
-      return;
-    }
-
-    return { owner: user.identity };
-  })
-  // ASSISTANTS: create
-  .on("assistants:create", ({ value, user }) => {
-    if (user.identity === STUDIO_USER_ID) {
-      return;
-    }
-
-    value.metadata ??= {};
-    value.metadata.owner = user.identity;
-    return { owner: user.identity };
-  })
-  // ASSISTANTS: read, update, delete, search
-  .on("assistants:read", ({ user }) => {
-    if (user.identity === STUDIO_USER_ID) {
-      return;
-    }
-
-    return { owner: user.identity };
-  })
-  .on("assistants:update", ({ user }) => {
-    if (user.identity === STUDIO_USER_ID) {
-      return;
-    }
-
-    return { owner: user.identity };
-  })
-  .on("assistants:delete", ({ user }) => {
-    if (user.identity === STUDIO_USER_ID) {
-      return;
-    }
-    return { owner: user.identity };
-  })
-  .on("assistants:search", ({ user }) => {
-    if (user.identity === STUDIO_USER_ID) {
-      return;
-    }
-    return { owner: user.identity };
-  })
   // STORE: permission-based access
   .on("store", ({ user }) => {
     return { owner: user.identity };
