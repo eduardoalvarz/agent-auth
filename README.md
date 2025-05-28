@@ -26,6 +26,31 @@ pnpm install
 pnpm dev
 ```
 
+## 🗄️ Database Setup
+
+**New to this repo?** You'll need to set up Supabase with the exact same schema and configuration:
+
+### Quick Setup:
+
+```bash
+# Get database setup instructions
+pnpm run setup:db
+
+# Then manually copy environment files
+cp apps/web/.env.example apps/web/.env
+cp apps/agents/.env.example apps/agents/.env
+```
+
+### What gets set up:
+- ✅ Users table with Stripe integration
+- ✅ Row Level Security (RLS) policies  
+- ✅ Automatic user profile creation
+- ✅ Performance indexes and triggers
+
+### Alternative: Manual Setup
+1. **Database Schema**: Copy and paste `supabase-schema.sql` in your Supabase SQL Editor
+2. **Environment Files**: Copy the `.env.example` files to `.env` and fill in credentials
+
 ## Setup
 
 1. Clone both repos
