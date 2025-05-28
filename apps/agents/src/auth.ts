@@ -1,5 +1,4 @@
-// If you see process.env linter errors, ensure you have @types/node installed and 'node' in your tsconfig types.
-// import type { Request } from 'express'; // Uncomment if using express
+
 import { Auth, HTTPException } from "@langchain/langgraph-sdk/auth";
 import { User } from "@supabase/supabase-js";
 import { getSupabaseClient } from "./lib/auth/supabase-client.js";
@@ -10,7 +9,7 @@ const STUDIO_USER_ID = "langgraph-studio-user";
 
 export const auth = new Auth()
   .authenticate(async (request: Request) => {
-    // Allow CORS preflight requests to pass through
+
     if (request.method === "OPTIONS") {
       return {
         identity: "anonymous",
@@ -19,7 +18,6 @@ export const auth = new Auth()
         display_name: "CORS Preflight",
       };
     }
-    // Detailed logging for debugging
     const headersObj: Record<string, string> = {};
     for (const [key, value] of Object.entries(request.headers)) {
       headersObj[key] = value;
@@ -85,7 +83,7 @@ export const auth = new Auth()
       ],
     };
   })
-  // THREADS: create
+
   .on("threads:create", ({ value, user }) => {
     if (user.identity === STUDIO_USER_ID) {
       return;
