@@ -10,27 +10,23 @@ This monorepo contains two main applications:
 - **`apps/agents`** - LangGraph.js ReAct agents backend
 
 ## 🚀 Quick Start
+### Terminal Tab 1:
 ```bash
 # Clone the repo
 git clone https://github.com/langchain-ai/agentic-saas-template.git```
-### Installation
 
-```bash
+#  **Environment Files**: Copy the `.env.example` files to `.env` and fill in credentials
+cp apps/web/.env.example apps/web/.env
+cp apps/agents/.env.example apps/agents/.env
+
 # Install dependencies for all apps
 pnpm install
 
 # Start development servers for both apps
 pnpm dev
 ```
+### 🗄️ Database Setup
 
-```bash
-#  **Environment Files**: Copy the `.env.example` files to `.env` and fill in credentials
-cp apps/web/.env.example apps/web/.env
-cp apps/agents/.env.example apps/agents/.env
-```
-## 🗄️ Database Setup
-
-**New to this repo?** You'll need to set up Supabase with the exact same schema and configuration:
 1. **Database Schema**: Copy and paste `supabase-schema.sql` in your Supabase SQL Editor
 
 ### What gets set up:
@@ -43,7 +39,11 @@ cp apps/agents/.env.example apps/agents/.env
 
 ```bash
 stripe listen --events customer.subscription.created,customer.subscription.updated,customer.subscription.deleted --forward-to localhost:3000/api/webhooks/stripe
+
+## add stripe webhook key to apps/web/.env
+STRIPE_WEBHOOK_SECRET=""
 ```
+You're ready to use the app!
 
 ### Use the App
 
