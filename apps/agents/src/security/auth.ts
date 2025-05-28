@@ -1,6 +1,6 @@
 import { Auth, HTTPException } from "@langchain/langgraph-sdk/auth";
 import { User } from "@supabase/supabase-js";
-import { getSupabaseClient } from "./lib/auth/supabase-client.js";
+import { getSupabaseClient } from "./supabase-client.js";
 
 const supabase = getSupabaseClient();
 
