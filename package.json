@@ -4,7 +4,10 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.5.1",
-  "description": "an open source fullstack chat app with supabase auth, LLM request credits, and stripe for payments built in",
+  "description": "Fullstack chat application with LangGraph agents and Next.js UI",
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
     "build": "pnpm -r build",
     "dev": "pnpm -r --parallel dev",

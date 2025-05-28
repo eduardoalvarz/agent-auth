@@ -1,13 +1,19 @@
 {
   "name": "agents",
   "version": "0.0.1",
+  "readme": "https://github.com/langchain-ai/agentic-saas-boilerplate/blob/main/README.md",
   "packageManager": "pnpm@10.5.1",
-  "description": "A template containing a LangGraph.js ReAct agent.",
+  "description": "A LangGraph.js ReAct agent with Langgraph Middleware auth using Supabase JWT tokens",
   "main": "src/graph.ts",
-  "author": "Your Name",
+  "author": "Langchain",
   "license": "MIT",
   "private": true,
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/langchain-ai/agentic-saas-boilerplate",
+    "directory": "apps/agents"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "npx @langchain/langgraph-cli dev --no-browser",

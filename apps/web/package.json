@@ -1,14 +1,18 @@
 {
   "name": "web",
-  "readme": "https://github.com/langchain-ai/agent-chat-ui/blob/main/README.md",
-  "homepage": "https://agentchat.vercel.app",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/langchain-ai/agent-chat-ui.git"
-  },
+  "readme": "https://github.com/langchain-ai/agentic-saas-boilerplate/blob/main/README.md",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "packageManager": "pnpm@10.5.1",
+  "description": "Client application for the agentic-saas-boilerplate",
+  "author": "Langchain",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/langchain-ai/agentic-saas-boilerplate",
+    "directory": "apps/web"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -94,6 +98,5 @@
   },
   "overrides": {
     "react-is": "^19.0.0-rc-69d4b800-20241021"
-  },
-  "packageManager": "pnpm@10.5.1"
+  }
 }

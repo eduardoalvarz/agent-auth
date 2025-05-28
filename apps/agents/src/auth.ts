@@ -1,4 +1,3 @@
-
 import { Auth, HTTPException } from "@langchain/langgraph-sdk/auth";
 import { User } from "@supabase/supabase-js";
 import { getSupabaseClient } from "./lib/auth/supabase-client.js";
@@ -9,7 +8,6 @@ const STUDIO_USER_ID = "langgraph-studio-user";
 
 export const auth = new Auth()
   .authenticate(async (request: Request) => {
-
     if (request.method === "OPTIONS") {
       return {
         identity: "anonymous",
