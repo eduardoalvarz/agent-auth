@@ -10,12 +10,9 @@ This monorepo contains two main applications:
 - **`apps/agents`** - LangGraph.js ReAct agents backend
 
 ## 🚀 Quick Start
-
-### Prerequisites
-
-- Node.js 18+ 
-- pnpm 8+ (recommended package manager)
-
+```bash
+# Clone the repo
+git clone https://github.com/langchain-ai/agentic-saas-template.git```
 ### Installation
 
 ```bash
@@ -26,20 +23,15 @@ pnpm install
 pnpm dev
 ```
 
-## 🗄️ Database Setup
-
-**New to this repo?** You'll need to set up Supabase with the exact same schema and configuration:
-
-### Quick Setup:
-
 ```bash
-# Get database setup instructions
-pnpm run setup:db
-
-# Then manually copy environment files
+#  **Environment Files**: Copy the `.env.example` files to `.env` and fill in credentials
 cp apps/web/.env.example apps/web/.env
 cp apps/agents/.env.example apps/agents/.env
 ```
+## 🗄️ Database Setup
+
+**New to this repo?** You'll need to set up Supabase with the exact same schema and configuration:
+1. **Database Schema**: Copy and paste `supabase-schema.sql` in your Supabase SQL Editor
 
 ### What gets set up:
 - ✅ Users table with Stripe integration
@@ -47,38 +39,7 @@ cp apps/agents/.env.example apps/agents/.env
 - ✅ Automatic user profile creation
 - ✅ Performance indexes and triggers
 
-### Alternative: Manual Setup
-1. **Database Schema**: Copy and paste `supabase-schema.sql` in your Supabase SQL Editor
-2. **Environment Files**: Copy the `.env.example` files to `.env` and fill in credentials
-
-## Setup
-
-1. Clone both repos
-
-```bash
-git clone https://github.com/starmorph/fullstack-chat-server/tree/main
-
-git clone https://github.com/starmorph/fullstack-chat-client
-```
-
-### Terminal Tab 1: Server
-
-```bash
-1. cp .env.example .env
-2. fill out env
-3. pnpm install
-4. npx @langchain/langgraph-cli dev --no-browser
-```
-
-### Terminal Tab 2: Client
-
-```bash
-1. cp .env.example .env
-2. fill out env
-3. pnpm install && pnpm dev
-```
-
-### Terminal Tab 3: Stripe Webhook (for purchases + credits)
+### Terminal Tab 2: Stripe Webhook (for purchases + credits)
 
 ```bash
 stripe listen --events customer.subscription.created,customer.subscription.updated,customer.subscription.deleted --forward-to localhost:3000/api/webhooks/stripe
@@ -126,17 +87,7 @@ pnpm agents:test      # Test only the agents app
 pnpm agents:test:int  # Integration tests for agents app
 ```
 
-#### Working with Individual Apps
 
-```bash
-# Run commands in specific workspaces
-pnpm --filter web <command>
-pnpm --filter agents <command>
-
-# Examples
-pnpm --filter web add @langchain/core
-pnpm --filter agents add dotenv
-```
 
 ## 🏗️ Project Structure
 
@@ -161,14 +112,16 @@ pnpm --filter agents add dotenv
 ### Web App (`apps/web`)
 - **Framework**: Next.js 15
 - **UI**: Radix UI + Tailwind CSS + shadcn/ui
+- **Auth**: Supabase, 
+- **Payments**: Stripe SDK
 - **State**: Nuqs, Zustand
-- **LangGraph**: @langchain/langgraph-sdk
 - **Package Manager**: pnpm
 
 ### Agents App (`apps/agents`)
 - **Runtime**: Node.js + TypeScript
 - **Framework**: LangGraph.js
 - **AI**: LangChain + Anthropic
+- **Auth**: Langgraph Middleware
 - **Testing**: Jest
 - **Package Manager**: pnpm
 
@@ -227,10 +180,3 @@ Each app can be deployed independently:
 4. Run tests: `pnpm test`
 5. Format code: `pnpm format`
 6. Submit a pull request
-
-## 📝 Migration Notes
-
-This monorepo was created by combining two separate repositories:
-- The agents app was migrated from yarn to pnpm
-- Both apps now use consistent tooling and scripts
-- pnpm workspaces provide efficient build caching and task orchestration 
