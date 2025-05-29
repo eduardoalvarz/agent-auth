@@ -22,6 +22,7 @@ interface CreditDeductionResult {
 export function useCreditDeduction() {
   const { user, isAuthenticated } = useAuthContext();
   const {
+    credits,
     deductCredits: optimisticDeduct,
     addCredits: optimisticAdd,
     refreshCredits,
@@ -45,16 +46,31 @@ export function useCreditDeduction() {
       return { success: false, error: "Not authenticated" };
     }
 
+    // Check if user has sufficient credits before optimistic update
+    if (credits !== null && credits < creditsToDeduct) {
+      toast.error("Insufficient credits", {
+        description: `You don't have enough credits to ${reason === "message" ? "send this message" : reason}.`,
+        duration: 5000,
+      });
+      return { success: false, error: "Insufficient credits" };
+    }
+
     try {
-      // Optimistically deduct credits from UI immediately
-      optimisticDeduct(creditsToDeduct);
+      // Only perform optimistic deduction if we have sufficient credits
+      let didOptimisticDeduct = false;
+      if (credits !== null && credits >= creditsToDeduct) {
+        optimisticDeduct(creditsToDeduct);
+        didOptimisticDeduct = true;
+      }
 
       // Deduct credits from database
       const creditResult = await deductUserCredits(user.id, creditsToDeduct);
 
       if (!creditResult.success) {
-        // Revert the optimistic update by adding credits back
-        optimisticAdd(creditsToDeduct);
+        // Only revert if we actually did an optimistic deduction
+        if (didOptimisticDeduct) {
+          optimisticAdd(creditsToDeduct);
+        }
 
         toast.error("Insufficient credits", {
           description: `You don't have enough credits to ${reason === "message" ? "send this message" : reason}.`,
@@ -99,8 +115,10 @@ export function useCreditDeduction() {
         },
       };
     } catch (error: any) {
-      // Revert the optimistic update
-      optimisticAdd(creditsToDeduct);
+      // Only revert if we actually did an optimistic deduction
+      if (credits !== null && credits >= creditsToDeduct) {
+        optimisticAdd(creditsToDeduct);
+      }
 
       if (error.message === "Insufficient credits") {
         toast.error("Insufficient credits", {
