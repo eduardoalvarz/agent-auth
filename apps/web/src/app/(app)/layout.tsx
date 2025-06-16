@@ -3,8 +3,8 @@ import "../globals.css";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "FullStack Chat - Client",
-  description: "FullStack Chat - Client",
+  title: "Agentic SAAS Template - Client",
+  description: "Agentic SAAS Template - Client",
 };
 
 export default function RootLayout({

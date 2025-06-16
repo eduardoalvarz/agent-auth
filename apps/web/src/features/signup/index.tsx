@@ -152,7 +152,7 @@ export default function SignupInterface() {
             Create an Account
           </CardTitle>
           <CardDescription className="text-center">
-            Sign up to get started with FullStack Chat
+            Sign up to get started with Agentic SAAS Template
           </CardDescription>
         </CardHeader>
         <CardContent>

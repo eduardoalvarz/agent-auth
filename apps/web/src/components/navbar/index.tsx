@@ -24,7 +24,7 @@ export function Navbar() {
           href="/"
           className="mr-6 flex items-center"
         >
-          <span className="text-xl font-bold">Fullstack Chat</span>
+          <span className="text-xl font-bold">Agentic SAAS Template</span>
         </Link>
         <div className="hidden md:flex">
           <NavigationMenu>

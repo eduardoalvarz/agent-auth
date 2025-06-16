@@ -443,7 +443,7 @@ export function Thread() {
                     height={32}
                   />
                   <span className="text-xl font-semibold tracking-tight">
-                    FullStack Chat
+                    Agentic SAAS Template
                   </span>
                 </motion.button>
               </div>
@@ -516,7 +516,7 @@ export function Thread() {
                     <div className="flex items-center gap-3">
                       <LangGraphLogoSVG className="h-8 flex-shrink-0" />
                       <h1 className="text-2xl font-semibold tracking-tight">
-                        Fullstack Chat
+                        Agentic SAAS Template
                       </h1>
                     </div>
                   )}

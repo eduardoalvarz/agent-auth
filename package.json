@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.5.1",
-  "description": "Fullstack chat application with LangGraph agents and Next.js UI",
+  "description": "Agentic SAAS Template application with LangGraph agents and Next.js UI",
   "workspaces": [
     "apps/*"
   ],

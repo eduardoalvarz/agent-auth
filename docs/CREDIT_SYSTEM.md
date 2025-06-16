@@ -1,6 +1,6 @@
 # Authentication & Credit System Documentation
 
-This document explains how the authentication and credit deduction systems are implemented in the fullstack chat application.
+This document explains how the authentication and credit deduction systems are implemented in the Agentic SAAS Template application.
 
 ## System Overview
 
@@ -10,52 +10,6 @@ The application uses **Supabase Auth** with JWT tokens for secure user authentic
 ### 2. Credit System  
 The credit system deducts **1 credit** from the user's account for every LLM request made through the chat interface. This includes sending new messages, regenerating AI responses, and editing messages.
 
-## Architecture Diagrams
-
-### Authentication Flow
-```mermaid
-graph TD
-    A[User] --> B[Sign In/Sign Up]
-    B --> C[SupabaseAuthProvider]
-    C --> D[Supabase Auth Service]
-    D --> E[JWT Token Generated]
-    E --> F[AuthProvider Context]
-    F --> G[User Session State]
-    G --> H[Protected Routes Access]
-    
-    I[Middleware] --> J{Check Auth}
-    J -->|Authenticated| K[Allow Access]
-    J -->|Not Authenticated| L[Redirect to /signin]
-    
-    M[API Requests] --> N[Auth Headers]
-    N --> O[Token Validation]
-    O --> P[User Identity]
-```
-
-### Credit System Flow
-```mermaid
-graph TD
-    A[User Action] --> B{Check Authentication}
-    B -->|Not Auth| C[Show Auth Error]
-    B -->|Authenticated| D[useCreditDeduction Hook]
-    
-    D --> E{Check Available Credits}
-    E -->|Insufficient| F[Show Credit Error]
-    E -->|Sufficient| G[Optimistic UI Update]
-    
-    G --> H[deductUserCredits API]
-    H --> I{Database Update}
-    I -->|Success| J[Proceed with LLM Request]
-    I -->|Failed| K[Revert UI & Show Error]
-    
-    J --> L{LLM Request}
-    L -->|Success| M[Update Real Balance]
-    L -->|Failed| N[Refund Credits]
-    
-    O[CreditsProvider] --> P[Global State Management]
-    P --> Q[Real-time UI Updates]
-    Q --> R[CreditBalance Component]
-```
 
 ## Authentication System Components
 

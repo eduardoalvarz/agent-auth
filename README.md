@@ -1,6 +1,6 @@
-# Fullstack Chat Repo
+# Agentic SAAS Template Repo
 
-A monorepo containing a fullstack chat application with LangGraph agents and Next.js UI.
+A monorepo containing a Agentic SAAS Template application with LangGraph agents and Next.js UI.
 
 ## 🏗️ Architecture
 
