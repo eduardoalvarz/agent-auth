@@ -1,6 +1,6 @@
 # Authentication & Credit System Documentation
 
-This document explains how the authentication and credit deduction systems are implemented in the Agentic SAAS Template application.
+This document explains how the authentication and credit deduction systems are implemented in the Agent with Auth and Payments application.
 
 ## System Overview
 

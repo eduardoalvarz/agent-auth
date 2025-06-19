@@ -3,8 +3,8 @@ import "../globals.css";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Agentic SAAS Template - Client",
-  description: "Agentic SAAS Template - Client",
+  title: "Agent with Auth and Payments - Client",
+  description: "Agent with Auth and Payments - Client",
 };
 
 export default function RootLayout({

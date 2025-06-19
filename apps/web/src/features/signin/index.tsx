@@ -112,7 +112,7 @@ export default function SigninInterface() {
         <CardHeader>
           <CardTitle className="text-center text-2xl">Sign In</CardTitle>
           <CardDescription className="text-center">
-            Welcome back to the Agentic SAAS Template Client
+            Welcome back to the Agent with Auth and Payments Client
           </CardDescription>
         </CardHeader>
         <CardContent>

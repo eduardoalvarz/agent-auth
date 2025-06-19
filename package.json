@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.5.1",
-  "description": "Agentic SAAS Template application with LangGraph agents and Next.js UI",
+  "description": "Agent with Auth and Payments application with LangGraph agents and Next.js UI",
   "workspaces": [
     "apps/*"
   ],

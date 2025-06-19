@@ -24,7 +24,9 @@ export function Navbar() {
           href="/"
           className="mr-6 flex items-center"
         >
-          <span className="text-xl font-bold">Agentic SAAS Template</span>
+          <span className="text-xl font-bold">
+            Agent with Auth and Payments
+          </span>
         </Link>
         <div className="hidden md:flex">
           <NavigationMenu>

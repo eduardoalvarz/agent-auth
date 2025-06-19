@@ -1,6 +1,6 @@
-# Agentic SAAS Template Repo
+# Agent with Auth and Payments Repo
 
-A monorepo containing a Agentic SAAS Template application with LangGraph agents and Next.js UI.
+A monorepo containing a Agent with Auth and Payments application with LangGraph agents and Next.js UI.
 
 ## 🏗️ Architecture
 
