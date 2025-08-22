@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useThreads } from "@/providers/Thread";
 import { Thread } from "@langchain/langgraph-sdk";
 import { useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 import { getContentString } from "../utils";
 import { useQueryState, parseAsBoolean } from "nuqs";
@@ -10,10 +11,12 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PanelRightOpen, PanelRightClose } from "lucide-react";
+import { PanelRightOpen, PanelRightClose, MessageSquare } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { Separator } from "@/components/ui/separator";
 
 function ThreadList({
   threads,
@@ -45,7 +48,10 @@ function ThreadList({
           >
             <Button
               variant="ghost"
-              className="w-[280px] items-start justify-start text-left font-normal"
+              className={cn(
+                "w-full items-start justify-start text-left font-normal px-3 py-2 rounded-md",
+                t.thread_id === threadId && "bg-accent text-accent-foreground",
+              )}
               onClick={(e) => {
                 e.preventDefault();
                 onThreadClick?.(t.thread_id);
@@ -53,6 +59,7 @@ function ThreadList({
                 setThreadId(t.thread_id);
               }}
             >
+              <MessageSquare className="mr-2 h-4 w-4 mt-0.5 shrink-0" />
               <p className="truncate text-ellipsis">{itemText}</p>
             </Button>
           </div>
@@ -133,11 +140,19 @@ export default function ThreadHistory() {
           >
             <SheetHeader>
               <SheetTitle>Historial</SheetTitle>
+              <SheetDescription>Selecciona una conversación</SheetDescription>
             </SheetHeader>
-            <ThreadList
-              threads={threads}
-              onThreadClick={() => setChatHistoryOpen((o) => !o)}
-            />
+            <Separator className="my-0" />
+            <div className="px-0">
+              {threadsLoading ? (
+                <ThreadHistoryLoading />
+              ) : (
+                <ThreadList
+                  threads={threads}
+                  onThreadClick={() => setChatHistoryOpen((o) => !o)}
+                />
+              )}
+            </div>
           </SheetContent>
         </Sheet>
       </div>

@@ -21,6 +21,7 @@ import {
   SquarePen,
   XIcon,
   Plus,
+  Wrench,
 } from "lucide-react";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
@@ -497,18 +498,25 @@ export function Thread() {
                             />
                             <Label
                               htmlFor="render-tool-calls"
-                              className="text-sm text-gray-600"
+                              className="text-sm text-gray-600 flex items-center"
+                              title="Ocultar herramientas"
                             >
-                              Hide tools
+                              <Wrench className="size-4" />
+                              <span className="sr-only">Ocultar herramientas</span>
                             </Label>
                           </div>
                         </div>
-                        <Label
-                          htmlFor="file-input"
-                          className="flex cursor-pointer items-center gap-1"
+                        <TooltipIconButton
+                          tooltip="Adjuntar archivos"
+                          variant="ghost"
+                          size="icon"
+                          className="p-2 rounded-full hover:bg-gray-100 text-gray-700"
+                          onClick={() =>
+                            document.getElementById("file-input")?.click()
+                          }
                         >
-                          <Plus className="size-5 text-gray-600" />
-                        </Label>
+                          <Plus className="size-5" />
+                        </TooltipIconButton>
                         <input
                           id="file-input"
                           type="file"

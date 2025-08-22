@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Menu, MessageSquare, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,10 +13,12 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader, SheetFooter, SheetClose } from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
 import { UserInfoSignOut } from "@/features/user-auth-status";
 
 export function Navbar() {
+  const pathname = usePathname();
   return (
     <div className="border-b">
       <div className="flex h-16 items-center px-4 md:px-6">
@@ -65,32 +68,41 @@ export function Navbar() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right">
-              <nav className="flex flex-col gap-4">
-                <Link
-                  href="/"
-                  className="text-lg font-medium"
-                >
-                  Chat
-                </Link>
-                <Link
-                  href="/pricing"
-                  className="text-lg font-medium"
-                >
-                  Precios
-                </Link>
-
-                <div className="mt-4 flex flex-col gap-2">
-                  <Button
-                    variant="outline"
-                    asChild
+              <SheetHeader>
+                <SheetTitle>Menú</SheetTitle>
+              </SheetHeader>
+              <nav className="flex h-full flex-col gap-1 px-2">
+                <SheetClose asChild>
+                  <Link
+                    href="/"
+                    className={cn(
+                      "flex items-center rounded-md px-3 py-2 text-base hover:bg-accent hover:text-accent-foreground",
+                      pathname === "/" && "bg-accent text-accent-foreground",
+                    )}
                   >
-                    <Link href="/signin">Iniciar sesión</Link>
-                  </Button>
-                  <Button asChild>
-                    <Link href="/signup">Crear cuenta</Link>
-                  </Button>
-                </div>
+                    <MessageSquare className="mr-3 h-5 w-5" />
+                    Chat
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link
+                    href="/pricing"
+                    className={cn(
+                      "flex items-center rounded-md px-3 py-2 text-base hover:bg-accent hover:text-accent-foreground",
+                      pathname?.startsWith("/pricing") && "bg-accent text-accent-foreground",
+                    )}
+                  >
+                    <CreditCard className="mr-3 h-5 w-5" />
+                    Precios
+                  </Link>
+                </SheetClose>
               </nav>
+              <Separator className="my-1" />
+              <SheetFooter className="mt-auto px-2 pb-2">
+                <div className="rounded-md border bg-muted/50 px-3 py-3">
+                  <UserInfoSignOut />
+                </div>
+              </SheetFooter>
             </SheetContent>
           </Sheet>
         </div>
