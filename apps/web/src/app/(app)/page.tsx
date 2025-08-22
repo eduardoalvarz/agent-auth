@@ -7,18 +7,28 @@ import { ArtifactProvider } from "@/components/thread/artifact";
 import { Toaster } from "@/components/ui/sonner";
 import React from "react";
 import { Navbar } from "@/components/navbar";
+import { useAuthContext } from "@/providers/Auth";
+import Landing from "@/features/landing";
+
 export default function DemoPage(): React.ReactNode {
+  const { isAuthenticated, isLoading } = useAuthContext();
   return (
     <React.Suspense fallback={<div>Loading (layout)...</div>}>
       <Toaster />
       <Navbar />
-      <ThreadProvider>
-        <StreamProvider>
-          <ArtifactProvider>
-            <Thread />
-          </ArtifactProvider>
-        </StreamProvider>
-      </ThreadProvider>
+      {isLoading ? (
+        <div className="container mx-auto px-4 py-10">Loading...</div>
+      ) : !isAuthenticated ? (
+        <Landing />
+      ) : (
+        <ThreadProvider>
+          <StreamProvider>
+            <ArtifactProvider>
+              <Thread />
+            </ArtifactProvider>
+          </StreamProvider>
+        </ThreadProvider>
+      )}
     </React.Suspense>
   );
 }

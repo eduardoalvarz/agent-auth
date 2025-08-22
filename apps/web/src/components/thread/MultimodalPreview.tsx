@@ -33,7 +33,7 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
       <div className={cn("relative inline-block", className)}>
         <Image
           src={url}
-          alt={String(block.metadata?.name || "uploaded image")}
+          alt={String(block.metadata?.name || "imagen subida")}
           className={imgClass}
           width={size === "sm" ? 16 : size === "md" ? 32 : 48}
           height={size === "sm" ? 16 : size === "md" ? 32 : 48}
@@ -43,7 +43,7 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
             type="button"
             className="absolute top-1 right-1 z-10 rounded-full bg-gray-500 text-white hover:bg-gray-700"
             onClick={onRemove}
-            aria-label="Remove image"
+            aria-label="Eliminar imagen"
           >
             <XIcon className="h-4 w-4" />
           </button>
@@ -59,7 +59,7 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
     block.mime_type === "application/pdf"
   ) {
     const filename =
-      block.metadata?.filename || block.metadata?.name || "PDF file";
+      block.metadata?.filename || block.metadata?.name || "Archivo PDF";
     return (
       <div
         className={cn(
@@ -86,7 +86,7 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
             type="button"
             className="ml-2 self-start rounded-full bg-gray-200 p-1 text-teal-700 hover:bg-gray-300"
             onClick={onRemove}
-            aria-label="Remove PDF"
+            aria-label="Eliminar PDF"
           >
             <XIcon className="h-4 w-4" />
           </button>
@@ -104,13 +104,13 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
       )}
     >
       <File className="h-5 w-5 flex-shrink-0" />
-      <span className="truncate text-xs">Unsupported file type</span>
+      <span className="truncate text-xs">Tipo de archivo no compatible</span>
       {removable && (
         <button
           type="button"
           className="ml-2 rounded-full bg-gray-200 p-1 text-gray-500 hover:bg-gray-300"
           onClick={onRemove}
-          aria-label="Remove file"
+          aria-label="Eliminar archivo"
         >
           <XIcon className="h-4 w-4" />
         </button>

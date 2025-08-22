@@ -15,7 +15,7 @@ export async function fileToContentBlock(
 
   if (!supportedFileTypes.includes(file.type)) {
     toast.error(
-      `Unsupported file type: ${file.type}. Supported types are: ${supportedFileTypes.join(", ")}`,
+      `Tipo de archivo no compatible: ${file.type}. Tipos admitidos: ${supportedFileTypes.join(", ")}`,
     );
     return Promise.reject(new Error(`Unsupported file type: ${file.type}`));
   }

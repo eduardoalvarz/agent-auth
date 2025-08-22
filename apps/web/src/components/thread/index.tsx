@@ -12,7 +12,6 @@ import {
   DO_NOT_RENDER_ID_PREFIX,
   ensureToolCallsHaveResponses,
 } from "@/lib/ensure-tool-responses";
-import { LangGraphLogoSVG } from "../icons/langgraph";
 import { TooltipIconButton } from "./tooltip-icon-button";
 import {
   ArrowDown,
@@ -30,13 +29,6 @@ import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
-import { GitHubSVG } from "../icons/github";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { ContentBlocksPreview } from "./ContentBlocksPreview";
 import {
@@ -82,32 +74,8 @@ function ScrollToBottom(props: { className?: string }) {
       onClick={() => scrollToBottom()}
     >
       <ArrowDown className="h-4 w-4" />
-      <span>Scroll to bottom</span>
+      <span>Ir al final</span>
     </Button>
-  );
-}
-
-function OpenGitHubRepo() {
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <a
-            href="https://github.com/langchain-ai/agent-chat-ui"
-            target="_blank"
-            className="flex items-center justify-center"
-          >
-            <GitHubSVG
-              width="24"
-              height="24"
-            />
-          </a>
-        </TooltipTrigger>
-        <TooltipContent side="left">
-          <p>Open GitHub repo</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
   );
 }
 
@@ -166,7 +134,7 @@ export function Thread() {
 
       // Message is defined, and it has not been logged yet. Save it, and send the error
       lastError.current = message;
-      toast.error("An error occurred. Please try again.", {
+      toast.error("Ocurrió un error. Por favor, inténtalo de nuevo.", {
         description: (
           <p>
             <strong>Error:</strong> <code>{message}</code>
@@ -240,13 +208,13 @@ export function Thread() {
         error?.error?.type === "overloaded_error" ||
         error?.message?.includes("Overloaded")
       ) {
-        toast.error("Server temporarily overloaded", {
-          description: "The AI server is busy. Please try again in a moment.",
+        toast.error("Servidor temporalmente saturado", {
+          description: "El servidor de IA está ocupado. Inténtalo de nuevo en un momento.",
           duration: 6000,
         });
       } else {
-        toast.error("Request failed", {
-          description: "There was an error processing your message.",
+        toast.error("Solicitud fallida", {
+          description: "Ocurrió un error al procesar tu mensaje.",
           duration: 5000,
         });
       }
@@ -273,13 +241,13 @@ export function Thread() {
         error?.error?.type === "overloaded_error" ||
         error?.message?.includes("Overloaded")
       ) {
-        toast.error("Server temporarily overloaded", {
-          description: "The AI server is busy. Please try again in a moment.",
+        toast.error("Servidor temporalmente saturado", {
+          description: "El servidor de IA está ocupado. Inténtalo de nuevo en un momento.",
           duration: 6000,
         });
       } else {
-        toast.error("Regeneration failed", {
-          description: "There was an error regenerating the message.",
+        toast.error("La regeneración falló", {
+          description: "Ocurrió un error al regenerar el mensaje.",
           duration: 5000,
         });
       }
@@ -363,9 +331,6 @@ export function Thread() {
                   </Button>
                 )}
               </div>
-              <div className="absolute top-2 right-4 flex items-center">
-                <OpenGitHubRepo />
-              </div>
             </div>
           )}
           {chatStarted && (
@@ -398,24 +363,20 @@ export function Thread() {
                     damping: 30,
                   }}
                 >
-                  <LangGraphLogoSVG
-                    width={32}
-                    height={32}
-                  />
                   <span className="text-xl font-semibold tracking-tight">
-                    Agent with Auth and Payments
+                    SELL OUT
+                  </span>
+                  <span className=" text-0xl text-muted-foreground italic">
+                    retailer-demo
                   </span>
                 </motion.button>
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="flex items-center">
-                  <OpenGitHubRepo />
-                </div>
                 <TooltipIconButton
                   size="lg"
                   className="p-4"
-                  tooltip="New thread"
+                  tooltip="Nuevo chat"
                   variant="ghost"
                   onClick={() => setThreadId(null)}
                 >
@@ -471,18 +432,23 @@ export function Thread() {
                 </>
               }
               footer={
-                <div className="sticky bottom-0 flex flex-col items-center gap-8 bg-white">
+                <div className="sticky bottom-0 flex flex-col items-center bg-white">
                   {!chatStarted && (
-                    <div className="flex items-center gap-3">
-                      <LangGraphLogoSVG className="h-8 flex-shrink-0" />
-                      <h1 className="text-2xl font-semibold tracking-tight">
-                        Agent with Auth and Payments
-                      </h1>
+                    <div className="flex flex-col items-center gap-0 mb-6">
+                      <div className="flex items-center gap-2">
+                        <h1 className="text-3xl font-semibold tracking-tight">
+                          SELL OUT
+                        </h1>
+                        
+                      </div>
+                      <span className="text-muted-foreground"> 
+                      <span className="italic">retailer-demo</span>                       
+                        <span> | about:chat </span>
+                      </span>
                     </div>
                   )}
-
+                  
                   <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
-
                   <div
                     ref={dropRef}
                     className={cn(
@@ -517,11 +483,11 @@ export function Thread() {
                             form?.requestSubmit();
                           }
                         }}
-                        placeholder="Type your message..."
+                        placeholder="Escribe tu mensaje..."
                         className="field-sizing-content resize-none border-none bg-transparent p-3.5 pb-0 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
                       />
 
-                      <div className="flex items-center gap-6 p-2 pt-4">
+                      <div className="flex items-center gap-4 p-2 pt-4">
                         <div>
                           <div className="flex items-center space-x-2">
                             <Switch
@@ -533,17 +499,17 @@ export function Thread() {
                               htmlFor="render-tool-calls"
                               className="text-sm text-gray-600"
                             >
-                              Hide Tool Calls
+                              Ocultar tools
                             </Label>
                           </div>
                         </div>
                         <Label
                           htmlFor="file-input"
-                          className="flex cursor-pointer items-center gap-2"
+                          className="flex cursor-pointer items-center gap-1"
                         >
                           <Plus className="size-5 text-gray-600" />
                           <span className="text-sm text-gray-600">
-                            Upload PDF or Image
+                            Subir PDF o imagen
                           </span>
                         </Label>
                         <input
@@ -561,7 +527,7 @@ export function Thread() {
                             className="ml-auto"
                           >
                             <LoaderCircle className="h-4 w-4 animate-spin" />
-                            Cancel
+                            Cancelar
                           </Button>
                         ) : (
                           <Button
@@ -572,7 +538,7 @@ export function Thread() {
                               (!input.trim() && contentBlocks.length === 0)
                             }
                           >
-                            Send
+                            Enviar
                           </Button>
                         )}
                       </div>

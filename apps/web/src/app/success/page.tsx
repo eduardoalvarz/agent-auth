@@ -12,19 +12,19 @@ export default function SuccessPage() {
       <div className="container mx-auto max-w-2xl px-4 py-24">
         <Card>
           <CardHeader>
-            <CardTitle>Payments Disabled</CardTitle>
+            <CardTitle>Pagos deshabilitados</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              This build does not process payments or manage credits. If you
-              arrived here from an old link, please return to the app.
+              Esta compilación no procesa pagos ni gestiona créditos. Si
+              llegaste aquí desde un enlace antiguo, por favor regresa a la aplicación.
             </p>
             <div className="flex gap-3">
               <Button asChild>
-                <Link href="/">Go to Chat</Link>
+                <Link href="/">Ir al chat</Link>
               </Button>
               <Button asChild variant="outline">
-                <Link href="/pricing">Pricing</Link>
+                <Link href="/pricing">Precios</Link>
               </Button>
             </div>
           </CardContent>

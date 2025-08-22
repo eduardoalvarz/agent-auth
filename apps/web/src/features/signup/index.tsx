@@ -23,20 +23,20 @@ import { googleAuthDisabled } from "@/lib/utils";
 // Form validation schema
 const signupSchema = z
   .object({
-    firstName: z.string().min(1, "First name is required"),
-    lastName: z.string().min(1, "Last name is required"),
+    firstName: z.string().min(1, "El nombre es obligatorio"),
+    lastName: z.string().min(1, "El apellido es obligatorio"),
     companyName: z.string().optional(),
-    email: z.string().email("Please enter a valid email address"),
+    email: z.string().email("Por favor introduce un correo electrónico válido"),
     password: z
       .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number"),
+      .min(8, "La contraseña debe tener al menos 8 caracteres")
+      .regex(/[A-Z]/, "La contraseña debe contener al menos una letra mayúscula")
+      .regex(/[a-z]/, "La contraseña debe contener al menos una letra minúscula")
+      .regex(/[0-9]/, "La contraseña debe contener al menos un número"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "Las contraseñas no coinciden",
     path: ["confirmPassword"],
   });
 
@@ -115,11 +115,11 @@ export default function SignupInterface() {
 
       // On success, redirect to a confirmation page or dashboard
       router.push(
-        "/signin?message=Please check your email to confirm your account",
+        "/signin?message=Por favor revisa tu correo para confirmar tu cuenta",
       );
     } catch (error) {
       console.error("Signup error:", error);
-      setAuthError("An unexpected error occurred. Please try again.");
+      setAuthError("Ocurrió un error inesperado. Por favor, inténtalo de nuevo.");
     } finally {
       setIsLoading(false);
     }
@@ -138,7 +138,7 @@ export default function SignupInterface() {
       // The redirect will be handled by the OAuth provider
     } catch (error) {
       console.error("Google signup error:", error);
-      setAuthError("An error occurred while signing up with Google.");
+      setAuthError("Ocurrió un error al registrarte con Google.");
     } finally {
       setIsLoading(false);
     }
@@ -149,10 +149,10 @@ export default function SignupInterface() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-center text-2xl">
-            Create an Account
+            Crear una cuenta
           </CardTitle>
           <CardDescription className="text-center">
-            Sign up to get started with Agent with Auth and Payments
+            Regístrate para comenzar a chatear con tus datos.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -162,12 +162,12 @@ export default function SignupInterface() {
           >
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
+                <Label htmlFor="firstName">Nombre</Label>
                 <Input
                   id="firstName"
                   name="firstName"
                   type="text"
-                  placeholder="John"
+                  placeholder="Juan"
                   value={formValues.firstName || ""}
                   onChange={handleInputChange}
                   aria-invalid={!!errors.firstName}
@@ -178,12 +178,12 @@ export default function SignupInterface() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
+                <Label htmlFor="lastName">Apellido</Label>
                 <Input
                   id="lastName"
                   name="lastName"
                   type="text"
-                  placeholder="Doe"
+                  placeholder="Pérez"
                   value={formValues.lastName || ""}
                   onChange={handleInputChange}
                   aria-invalid={!!errors.lastName}
@@ -196,16 +196,16 @@ export default function SignupInterface() {
 
             <div className="space-y-2">
               <Label htmlFor="companyName">
-                Company Name{" "}
+                Nombre de la empresa{" "}
                 <span className="text-muted-foreground text-xs">
-                  (Optional)
+                  (Opcional)
                 </span>
               </Label>
               <Input
                 id="companyName"
                 name="companyName"
                 type="text"
-                placeholder="Your Company Inc."
+                placeholder="Tu Empresa S.A."
                 value={formValues.companyName || ""}
                 onChange={handleInputChange}
                 aria-invalid={!!errors.companyName}
@@ -216,12 +216,12 @@ export default function SignupInterface() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Correo electrónico</Label>
               <Input
                 id="email"
                 name="email"
                 type="email"
-                placeholder="name@example.com"
+                placeholder="nombre@ejemplo.com"
                 value={formValues.email || ""}
                 onChange={handleInputChange}
                 aria-invalid={!!errors.email}
@@ -232,11 +232,11 @@ export default function SignupInterface() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Contraseña</Label>
               <PasswordInput
                 id="password"
                 name="password"
-                placeholder="Create a password"
+                placeholder="Crea una contraseña"
                 value={formValues.password || ""}
                 onChange={handleInputChange}
                 aria-invalid={!!errors.password}
@@ -247,11 +247,11 @@ export default function SignupInterface() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
               <PasswordInput
                 id="confirmPassword"
                 name="confirmPassword"
-                placeholder="Confirm your password"
+                placeholder="Confirma tu contraseña"
                 value={formValues.confirmPassword || ""}
                 onChange={handleInputChange}
                 aria-invalid={!!errors.confirmPassword}
@@ -274,7 +274,7 @@ export default function SignupInterface() {
               className="w-full"
               disabled={isLoading}
             >
-              {isLoading ? "Creating Account..." : "Create Account"}
+              {isLoading ? "Creando cuenta..." : "Crear cuenta"}
             </Button>
           </form>
 
@@ -286,7 +286,7 @@ export default function SignupInterface() {
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-card text-muted-foreground px-2">
-                    Or continue with
+                    O continuar con
                   </span>
                 </div>
               </div>
@@ -310,19 +310,19 @@ export default function SignupInterface() {
                 >
                   <path d="M20.283 10.356h-8.327v3.451h4.792c-.446 2.193-2.313 3.453-4.792 3.453a5.27 5.27 0 0 1-5.279-5.28 5.27 5.27 0 0 1 5.279-5.279c1.259 0 2.397.447 3.29 1.178l2.6-2.599c-1.584-1.381-3.615-2.233-5.89-2.233a8.908 8.908 0 0 0-8.934 8.934 8.907 8.907 0 0 0 8.934 8.934c4.467 0 8.529-3.249 8.529-8.934 0-.528-.081-1.097-.202-1.625z"></path>
                 </svg>
-                Sign up with Google
+                Registrarte con Google
               </Button>
             </>
           )}
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-muted-foreground text-sm">
-            Already have an account?{" "}
+            ¿Ya tienes una cuenta?{" "}
             <Link
               href="/signin"
               className="text-primary font-medium hover:underline"
             >
-              Sign in
+              Iniciar sesión
             </Link>
           </p>
         </CardFooter>

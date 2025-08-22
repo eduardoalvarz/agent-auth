@@ -10,7 +10,7 @@ export function UserInfoSignOut() {
     return (
       <div className="mt-2 flex animate-pulse items-center gap-2">
         <div className="h-8 w-8 rounded-full bg-gray-200" />
-        <span className="text-sm text-gray-400">Loading...</span>
+        <span className="text-sm text-gray-400">Cargando...</span>
       </div>
     );
   }
@@ -40,7 +40,7 @@ function SignedInView({ user, signOut }: SignedInViewProps) {
       {user?.avatarUrl ? (
         <img
           src={user.avatarUrl}
-          alt={user.displayName || user.email || "User"}
+          alt={user.displayName || user.email || "Usuario"}
           className="h-8 w-8 rounded-full border object-cover"
         />
       ) : (
@@ -69,7 +69,7 @@ function SignedInView({ user, signOut }: SignedInViewProps) {
           await signOut();
         }}
       >
-        Sign Out
+        Salir
       </button>
     </div>
   );
@@ -87,13 +87,13 @@ function SignedOutView() {
         className="ml-1 rounded border bg-white px-2 py-1 text-xs hover:bg-gray-50"
         onClick={() => router.push("/signin")}
       >
-        Sign In
+        Iniciar sesión
       </button>
       <button
         className="ml-1 rounded border bg-white px-2 py-1 text-xs hover:bg-gray-50"
         onClick={() => router.push("/signup")}
       >
-        Sign Up
+        Registrarse
       </button>
     </div>
   );

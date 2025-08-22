@@ -24,7 +24,7 @@ export function Navbar() {
           className="mr-6 flex items-center"
         >
           <span className="text-xl font-bold">
-            Agent with Auth and Payments
+            about:blanc
           </span>
         </Link>
         <div className="hidden md:flex">
@@ -43,7 +43,7 @@ export function Navbar() {
                   className={navigationMenuTriggerStyle()}
                   asChild
                 >
-                  <Link href="/pricing">Pricing</Link>
+                  <Link href="/pricing">Precios</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>
@@ -61,7 +61,7 @@ export function Navbar() {
                 className="md:hidden"
               >
                 <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle menu</span>
+                <span className="sr-only">Alternar menú</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="right">
@@ -76,7 +76,7 @@ export function Navbar() {
                   href="/pricing"
                   className="text-lg font-medium"
                 >
-                  Pricing
+                  Precios
                 </Link>
 
                 <div className="mt-4 flex flex-col gap-2">
@@ -84,10 +84,10 @@ export function Navbar() {
                     variant="outline"
                     asChild
                   >
-                    <Link href="/signin">Login</Link>
+                    <Link href="/signin">Iniciar sesión</Link>
                   </Button>
                   <Button asChild>
-                    <Link href="/signup">Sign up</Link>
+                    <Link href="/signup">Crear cuenta</Link>
                   </Button>
                 </div>
               </nav>

@@ -63,12 +63,14 @@ export function useFileUpload({
 
     if (invalidFiles.length > 0) {
       toast.error(
-        "You have uploaded invalid file type. Please upload a JPEG, PNG, GIF, WEBP image or a PDF.",
+        "Has subido un tipo de archivo no válido. Sube una imagen JPEG, PNG, GIF, WEBP o un PDF.",
       );
     }
     if (duplicateFiles.length > 0) {
       toast.error(
-        `Duplicate file(s) detected: ${duplicateFiles.map((f) => f.name).join(", ")}. Each file can only be uploaded once per message.`,
+        `Archivo(s) duplicado(s) detectado(s): ${duplicateFiles
+          .map((f) => f.name)
+          .join(", ")}. Cada archivo solo puede subirse una vez por mensaje.`,
       );
     }
 
@@ -123,12 +125,14 @@ export function useFileUpload({
 
       if (invalidFiles.length > 0) {
         toast.error(
-          "You have uploaded invalid file type. Please upload a JPEG, PNG, GIF, WEBP image or a PDF.",
+          "Has subido un tipo de archivo no válido. Sube una imagen JPEG, PNG, GIF, WEBP o un PDF.",
         );
       }
       if (duplicateFiles.length > 0) {
         toast.error(
-          `Duplicate file(s) detected: ${duplicateFiles.map((f) => f.name).join(", ")}. Each file can only be uploaded once per message.`,
+          `Archivo(s) duplicado(s) detectado(s): ${duplicateFiles
+            .map((f) => f.name)
+            .join(", ")}. Cada archivo solo puede subirse una vez por mensaje.`,
         );
       }
 
@@ -243,12 +247,14 @@ export function useFileUpload({
     const uniqueFiles = validFiles.filter((file) => !isDuplicate(file));
     if (invalidFiles.length > 0) {
       toast.error(
-        "You have pasted an invalid file type. Please paste a JPEG, PNG, GIF, WEBP image or a PDF.",
+        "Has pegado un tipo de archivo no válido. Pega una imagen JPEG, PNG, GIF, WEBP o un PDF.",
       );
     }
     if (duplicateFiles.length > 0) {
       toast.error(
-        `Duplicate file(s) detected: ${duplicateFiles.map((f) => f.name).join(", ")}. Each file can only be uploaded once per message.`,
+        `Archivo(s) duplicado(s) detectado(s): ${duplicateFiles
+          .map((f) => f.name)
+          .join(", ")}. Cada archivo solo puede subirse una vez por mensaje.`,
       );
     }
     if (uniqueFiles.length > 0) {
