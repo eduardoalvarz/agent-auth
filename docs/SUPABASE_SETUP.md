@@ -124,7 +124,33 @@ CREATE TRIGGER on_auth_user_created
    - `https://your-project-ref.supabase.co/auth/v1/callback`
    - `http://localhost:3000/api/auth/callback` (for development)
 
-### 4. Environment Variables Setup
+### 4. Invite-Only Authentication Configuration
+
+1. In Supabase Dashboard, go to **Authentication > Settings > Rate limits & features**
+2. Under **Features**, disable: **Allow new users to sign up**
+3. Go to **Authentication > URL Configuration** and add the following to **Redirect URLs**:
+   - `http://localhost:3000/auth/set-password`
+   - Your production URL: `https://yourdomain.com/auth/set-password`
+4. Go to **Authentication > Templates** and customize:
+   - Invite email: explain that they will set their password on first visit
+   - Reset password email: link leads to the same set-password page
+5. Test the flow:
+   - Use the Admin API (see below) or the Dashboard’s "Invite user" to send an invite
+   - Click the link in the email; you should land on `/auth/set-password`
+   - Set the password and then sign in normally
+
+#### Admin Invite API (server-only)
+
+Your app exposes a protected endpoint to invite users without exposing the service role key to the client:
+
+- Endpoint: `POST /api/admin/invite`
+- Headers: `Authorization: Bearer <ADMIN_INVITE_TOKEN>`
+- Body: `{ "email": "user@example.com" }`
+- Behavior: Calls Supabase Admin API to invite the user with `redirectTo` pointing to `/auth/set-password`.
+
+Environment variable `ADMIN_INVITE_TOKEN` is required (see below) and should be stored securely (e.g. Vercel project envs), never exposed to the browser.
+
+### 5. Environment Variables Setup
 
 This repository uses separate environment files for each app, which is the recommended approach for monorepos.
 
@@ -158,6 +184,7 @@ You'll need to fill in the following variables in each app:
 - `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anon/public key
 - `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key (server-only)
+- `ADMIN_INVITE_TOKEN` - Random secret string to authorize `POST /api/admin/invite`
 - `NEXT_PUBLIC_API_URL` - LangGraph API URL (usually `http://localhost:2024`)
 - `NEXT_PUBLIC_ASSISTANT_ID` - Your LangGraph assistant ID
 

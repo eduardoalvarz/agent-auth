@@ -17,10 +17,9 @@ export class SupabaseAuthProvider implements AuthProvider {
     this.supabase = getSupabaseClient();
     this.options = {
       shouldPersistSession: true,
+      // Base site URL; individual methods append their path
       redirectUrl:
-        typeof window !== "undefined"
-          ? `${window.location.origin}/api/auth/callback`
-          : undefined,
+        typeof window !== "undefined" ? window.location.origin : undefined,
       ...options,
     };
   }
@@ -84,31 +83,16 @@ export class SupabaseAuthProvider implements AuthProvider {
     };
   }
 
-  async signUp(credentials: AuthCredentials) {
-    try {
-      const { data, error } = await this.supabase.auth.signUp({
-        email: credentials.email,
-        password: credentials.password,
-        options: {
-          emailRedirectTo: this.options.redirectUrl,
-          data: credentials.metadata || {},
-        },
-      });
-
-      if (error) throw error;
-
-      return {
-        user: this.formatUser(data?.user),
-        session: this.formatSession(data?.session),
-        error: null,
-      };
-    } catch (error) {
-      return {
-        user: null,
-        session: null,
-        error: this.formatError(error),
-      };
-    }
+  async signUp(_credentials: AuthCredentials) {
+    // Public sign-up is disabled (invite-only)
+    return {
+      user: null,
+      session: null,
+      error: {
+        message:
+          "El registro público está deshabilitado. Solicita una invitación al administrador.",
+      },
+    };
   }
 
   async signIn(credentials: AuthCredentials) {
@@ -139,7 +123,8 @@ export class SupabaseAuthProvider implements AuthProvider {
       const { data, error } = await this.supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: this.options.redirectUrl,
+          // Always send OAuth back to callback endpoint to exchange code for session
+          redirectTo: `${this.options.redirectUrl}/api/auth/callback`,
           queryParams: {
             prompt: "select_account",
           },
@@ -267,7 +252,8 @@ export class SupabaseAuthProvider implements AuthProvider {
   async resetPassword(email: string) {
     try {
       const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${this.options.redirectUrl}/reset-password`,
+        // Send users to set-password page where they can update their password
+        redirectTo: `${this.options.redirectUrl}/auth/set-password`,
       });
 
       if (error) throw error;

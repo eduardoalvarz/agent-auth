@@ -6,7 +6,9 @@ import { ThreadProvider } from "@/providers/Thread";
 import { ArtifactProvider } from "@/components/thread/artifact";
 import { Toaster } from "@/components/ui/sonner";
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { getSupabaseClient } from "@/lib/auth/supabase-client";
 import { Navbar } from "@/components/navbar";
 import { useAuthContext } from "@/providers/Auth";
 import Landing from "@/features/landing";
@@ -14,6 +16,7 @@ import AboutBlancSplash from "@/components/splash/AboutBlancSplash";
 
 export default function DemoPage(): React.ReactNode {
   const { isAuthenticated, isLoading } = useAuthContext();
+  const router = useRouter();
   const [showSplash, setShowSplash] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     const flag = sessionStorage.getItem("showAboutBlancSplash");
@@ -30,6 +33,34 @@ export default function DemoPage(): React.ReactNode {
     const t = setTimeout(() => setShowSplash(false), 2000);
     return () => clearTimeout(t);
   }, [showSplash]);
+
+  // Handle Supabase hash-based callbacks like
+  // http://localhost:3000/#access_token=...&type=recovery|invite
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.pathname !== "/") return;
+    const hash = window.location.hash || "";
+    if (!hash.includes("access_token")) return;
+    const params = new URLSearchParams(hash.replace(/^#/, ""));
+    const type = params.get("type");
+    if (type === "recovery" || type === "invite" || type === "signup") {
+      const access_token = params.get("access_token");
+      const refresh_token = params.get("refresh_token");
+      const supabase = getSupabaseClient();
+      (async () => {
+        try {
+          if (access_token && refresh_token) {
+            await supabase.auth.setSession({
+              access_token,
+              refresh_token,
+            });
+          }
+        } finally {
+          router.replace("/auth/set-password");
+        }
+      })();
+    }
+  }, [router]);
 
   return (
     <React.Suspense fallback={<div>Loading (layout)...</div>}>

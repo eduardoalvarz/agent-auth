@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 
 export default function Landing() {
   return (
-    <main className="container mx-auto flex min-h-[70vh] flex-col items-center justify-center gap-8 px-4 py-16 text-center">
+    <main className="container mx-auto flex min-h-[70vh] flex-col items-center justify-center gap-5 px-4 py-16 text-center">
       <motion.h1
         initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -14,7 +14,7 @@ export default function Landing() {
         className="text-4xl font-bold tracking-tight sm:text-5xl"
       >
         <span className="font-normal italic">¡Bienvenido a </span>
-        <span className="font-bold not-italic">about:chat</span>
+        <span className="font-bold not-italic">about:demo</span>
         <span className="font-normal italic">!</span>
       </motion.h1>
 
@@ -36,9 +36,16 @@ export default function Landing() {
         <Button asChild>
           <Link href="/signin">Iniciar sesión</Link>
         </Button>
-        <Button asChild variant="outline">
-          <Link href="/signup">Crear cuenta</Link>
-        </Button>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
+        className="flex flex-wrap items-center justify-center gap-4"
+        >
+        <p className="text-muted-foreground text-xs italic">
+          - Registro por invitación -
+        </p>
       </motion.div>
     </main>
   );

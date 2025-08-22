@@ -1,7 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const NO_AUTH_PATHS = ["/signin", "/signup", "/api/auth"];
+const NO_AUTH_PATHS = [
+  "/signin",
+  "/api/auth",
+  "/api/admin/invite",
+  "/auth/forgot-password",
+  "/auth/set-password",
+];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -44,10 +50,8 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (
-    !user &&
-    !NO_AUTH_PATHS.some((path) => request.nextUrl.pathname.startsWith(path))
-  ) {
+  const path = request.nextUrl.pathname;
+  if (!user && !(path === "/" || NO_AUTH_PATHS.some((p) => path.startsWith(p)))) {
     // Check if this is an API request
     if (request.nextUrl.pathname.startsWith("/api/")) {
       // Return a JSON response with 401 Unauthorized status for API requests
@@ -63,14 +67,15 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // If the user is authenticated, and they are trying to access an auth page, redirect them to the home page
-  if (
-    user &&
-    NO_AUTH_PATHS.some((path) => request.nextUrl.pathname.startsWith(path))
-  ) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/";
-    return NextResponse.redirect(url);
+  // If the user is authenticated, redirect them away from login-related pages.
+  // Important: allow access to /auth/set-password even when authenticated (invite/reset flow).
+  if (user) {
+    const redirectWhenAuthed = ["/signin", "/auth/forgot-password"]; // do NOT include /auth/set-password
+    if (redirectWhenAuthed.some((p) => path.startsWith(p))) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.

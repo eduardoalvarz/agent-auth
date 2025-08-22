@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.5.1",
-  "description": "Agent with Auth and Payments application with LangGraph agents and Next.js UI",
+  "description": "about:blanc - demo",
   "workspaces": [
     "apps/*"
   ],

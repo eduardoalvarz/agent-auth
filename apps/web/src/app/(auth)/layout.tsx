@@ -4,8 +4,8 @@ import "../globals.css";
 import { DOCS_LINK } from "@/constants";
 
 export const metadata: Metadata = {
-  title: "Agent with Auth and Payments - Client",
-  description: "Agent with Auth and Payments - Client",
+  title: "about:blanc - demo",
+  description: "about:blanc - demo",
 };
 
 export default function Layout({

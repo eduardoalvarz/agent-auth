@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "readme": "https://github.com/langchain-ai/agentic-saas-boilerplate/blob/main/README.md",
   "packageManager": "pnpm@10.5.1",
-  "description": "A LangGraph.js ReAct agent with Langgraph Middleware auth using Supabase JWT tokens",
+  "description": "about:blanc - demo",
   "main": "src/graph.ts",
   "author": "Langchain",
   "license": "MIT",

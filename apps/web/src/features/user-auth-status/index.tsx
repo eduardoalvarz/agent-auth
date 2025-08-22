@@ -51,7 +51,7 @@ function SignedInView({ user, signOut }: SignedInViewProps) {
         </div>
       )}
       <span
-        className="max-w-[240px] truncate text-sm"
+        className="max-w-[500px] truncate text-sm"
         title={user?.displayName || user?.email || undefined}
       >
         {user?.displayName || user?.email}
@@ -88,12 +88,6 @@ function SignedOutView() {
         onClick={() => router.push("/signin")}
       >
         Iniciar sesión
-      </button>
-      <button
-        className="ml-1 rounded border bg-white px-2 py-1 text-xs hover:bg-gray-50"
-        onClick={() => router.push("/signup")}
-      >
-        Registrarse
       </button>
     </div>
   );

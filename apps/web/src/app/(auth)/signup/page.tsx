@@ -1,7 +1,18 @@
 "use client";
 
-import SignupInterface from "@/features/signup";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
-  return <SignupInterface />;
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect away from public sign-up
+    const message = encodeURIComponent(
+      "El registro está deshabilitado. Solicita una invitación al administrador.",
+    );
+    router.replace(`/signin?message=${message}`);
+  }, [router]);
+
+  return null;
 }
