@@ -8,6 +8,10 @@ let supabaseInstance: ReturnType<typeof createClient> | null = null;
  * @returns A Supabase client instance
  */
 export function getSupabaseClient() {
+  if (supabaseInstance) {
+    return supabaseInstance;
+  }
+
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_KEY;
 
@@ -19,6 +23,5 @@ export function getSupabaseClient() {
 
   // Use the browser client when in browser environment
   supabaseInstance = createClient(supabaseUrl, supabaseKey);
-
   return supabaseInstance;
 }

@@ -2,7 +2,7 @@
  * Define the configurable parameters for the agent.
  */
 import { Annotation } from "@langchain/langgraph";
-import { SYSTEM_PROMPT_TEMPLATE } from "./prompts.js";
+import { SYSTEM_PROMPT } from "./prompts.js";
 import { RunnableConfig } from "@langchain/core/runnables";
 
 export type ReasoningEffort = "low" | "medium" | "high";
@@ -39,7 +39,7 @@ export function ensureConfiguration(
   const configurable = config.configurable ?? {};
   return {
     systemPromptTemplate:
-      configurable.systemPromptTemplate ?? SYSTEM_PROMPT_TEMPLATE,
+      configurable.systemPromptTemplate ?? SYSTEM_PROMPT,
     model: configurable.model ?? "openai/o3",
     reasoningEffort: (configurable.reasoningEffort as ReasoningEffort) ?? getReasoningEffortFromEnv(),
   };

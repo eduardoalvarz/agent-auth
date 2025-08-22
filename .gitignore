@@ -40,7 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-credentials.json
+# Ignore service account JSON in agents src
+apps/agents/src/coop-query-*.json
 
 # LangGraph API
 .langgraph_api

@@ -42,7 +42,12 @@ export const auth = new Auth()
     }
     const headersObj: Record<string, string> = {};
     for (const [key, value] of Object.entries(request.headers)) {
-      headersObj[key] = value;
+      // Redact authorization header to avoid leaking tokens in logs
+      if (key.toLowerCase() === "authorization") {
+        headersObj[key] = "<redacted>";
+      } else {
+        headersObj[key] = value;
+      }
     }
     console.log("[auth] Incoming request", {
       url: request.url,
