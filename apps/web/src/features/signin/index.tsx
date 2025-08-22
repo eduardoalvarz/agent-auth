@@ -76,6 +76,11 @@ export default function SigninInterface() {
         return;
       }
 
+      // Flag splash for next page load
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("showAboutBlancSplash", "1");
+      }
+
       // Show success message and set up manual redirect timer
       setIsSuccess(true);
 
@@ -94,6 +99,11 @@ export default function SigninInterface() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     setError(null);
+
+    // Flag splash before redirecting to Google OAuth
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("showAboutBlancSplash", "1");
+    }
 
     const { error } = await signInWithGoogle();
     if (error) {

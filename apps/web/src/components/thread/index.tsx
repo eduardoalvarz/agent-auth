@@ -499,7 +499,7 @@ export function Thread() {
                               htmlFor="render-tool-calls"
                               className="text-sm text-gray-600"
                             >
-                              Ocultar tools
+                              Hide tools
                             </Label>
                           </div>
                         </div>
@@ -508,9 +508,6 @@ export function Thread() {
                           className="flex cursor-pointer items-center gap-1"
                         >
                           <Plus className="size-5 text-gray-600" />
-                          <span className="text-sm text-gray-600">
-                            Subir PDF o imagen
-                          </span>
                         </Label>
                         <input
                           id="file-input"
