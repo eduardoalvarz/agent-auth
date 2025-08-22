@@ -1,5 +1,7 @@
 # Authentication & Credit System Documentation
 
+> Important: The credits system is disabled in this build. This document is retained for historical reference only.
+
 This document explains how the authentication and credit deduction systems are implemented in the Agent with Auth and Payments application.
 
 ## System Overview

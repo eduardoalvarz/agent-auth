@@ -5,6 +5,13 @@ import { Annotation } from "@langchain/langgraph";
 import { SYSTEM_PROMPT_TEMPLATE } from "./prompts.js";
 import { RunnableConfig } from "@langchain/core/runnables";
 
+export type ReasoningEffort = "low" | "medium" | "high";
+
+function getReasoningEffortFromEnv(): ReasoningEffort {
+  const v = (process.env.OPENAI_REASONING_EFFORT || "medium").toLowerCase();
+  return (["low", "medium", "high"].includes(v) ? v : "medium") as ReasoningEffort;
+}
+
 export const ConfigurationSchema = Annotation.Root({
   /**
    * The system prompt to be used by the agent.
@@ -13,8 +20,14 @@ export const ConfigurationSchema = Annotation.Root({
 
   /**
    * The name of the language model to be used by the agent.
+   * Use format "provider/model", e.g., "openai/o3" (default).
    */
   model: Annotation<string>,
+
+  /**
+   * Reasoning effort passed to reasoning-capable models like OpenAI o3.
+   */
+  reasoningEffort: Annotation<ReasoningEffort>,
 });
 
 export function ensureConfiguration(
@@ -27,6 +40,7 @@ export function ensureConfiguration(
   return {
     systemPromptTemplate:
       configurable.systemPromptTemplate ?? SYSTEM_PROMPT_TEMPLATE,
-    model: configurable.model ?? "claude-3-5-sonnet-20240620",
+    model: configurable.model ?? "openai/o3",
+    reasoningEffort: (configurable.reasoningEffort as ReasoningEffort) ?? getReasoningEffortFromEnv(),
   };
 }

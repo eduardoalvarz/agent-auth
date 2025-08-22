@@ -2,6 +2,8 @@
 
 A monorepo containing a Agent with Auth and Payments application with LangGraph agents and Next.js UI.
 
+> Important: Payments and the credits system are disabled in this build. All Stripe-related features have been removed or stubbed.
+
 ## 🏗️ Architecture
 
 This monorepo contains two main applications:
@@ -30,19 +32,11 @@ pnpm dev
 1. **Database Schema**: Copy and paste `supabase-schema.sql` in your Supabase SQL Editor
 
 ### What gets set up:
-- ✅ Users table with Stripe integration
+- ✅ Users table
 - ✅ Row Level Security (RLS) policies  
 - ✅ Automatic user profile creation
 - ✅ Performance indexes and triggers
 
-### Terminal Tab 2: Stripe Webhook (for purchases + credits)
-
-```bash
-stripe listen --events customer.subscription.created,customer.subscription.updated,customer.subscription.deleted --forward-to localhost:3000/api/webhooks/stripe
-
-## add stripe webhook key to apps/web/.env
-STRIPE_WEBHOOK_SECRET=""
-```
 You're ready to use the app!
 
 ### Use the App
@@ -51,10 +45,7 @@ You're ready to use the app!
 1. Open localhost:3000
 2. Sign up -> confirm email
 3. login
-4. pricing page --> purchase credits
-   a. should see stripe events in Terminal Tab 3
-5. should see success page, new credits added
-6. back to home, chat with app, credits get deducted
+4. Start chatting — credits are not required
 ```
 
 
@@ -113,7 +104,6 @@ pnpm agents:test:int  # Integration tests for agents app
 - **Framework**: Next.js 15
 - **UI**: Radix UI + Tailwind CSS + shadcn/ui
 - **Auth**: Supabase, 
-- **Payments**: Stripe SDK
 - **State**: Nuqs, Zustand
 - **Package Manager**: pnpm
 

@@ -1,5 +1,7 @@
 # Supabase Setup Guide
 
+> Important: Payments and the credits system are disabled in this build. You can ignore any Stripe-related environment variables, webhooks, or testing steps.
+
 This guide will help you set up the exact same Supabase configuration as this repository, including database tables, Row Level Security (RLS) policies, and authentication settings.
 
 ## 📋 Prerequisites
@@ -156,9 +158,6 @@ You'll need to fill in the following variables in each app:
 - `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anon/public key
 - `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key (server-only)
-- `STRIPE_SECRET_KEY` - Stripe secret key
-- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
-- `STRIPE_WEBHOOK_SECRET` - Stripe webhook secret
 - `NEXT_PUBLIC_API_URL` - LangGraph API URL (usually `http://localhost:2024`)
 - `NEXT_PUBLIC_ASSISTANT_ID` - Your LangGraph assistant ID
 
@@ -231,11 +230,9 @@ LIMIT 5;
 2. Check if the user appears in the `users` table
 3. Verify the user has `credits_available = 0` and `subscription_status = 'inactive'`
 
-### 3. Test Stripe Integration
+### 3. Payments & Credits
 
-1. Set up Stripe webhooks pointing to your app
-2. Create a test subscription
-3. Verify the webhook updates the user's credits and subscription status
+Stripe payments and the credits system are disabled. Related endpoints return HTTP 410 Gone, and the UI provides stub pages.
 
 ## 🚨 Common Issues & Solutions
 
@@ -259,7 +256,7 @@ LIMIT 5;
 - [Supabase Documentation](https://supabase.com/docs)
 - [Row Level Security Guide](https://supabase.com/docs/guides/auth/row-level-security)
 - [Supabase Auth Guide](https://supabase.com/docs/guides/auth)
-- [Stripe Webhooks Documentation](https://stripe.com/docs/webhooks)
+ 
 
 ## 🔄 Migration from Existing Setup
 

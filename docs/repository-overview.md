@@ -21,17 +21,13 @@
 - **Interrupt Handling**: Manages conversation interrupts and user input
 - **Streaming**: Real-time response streaming
 
-### 🪙 Credits System
+### 🪙 Credits System (disabled)
 
-- **Credit Balance**: Displays user's available credits
-- **Credit Deduction**: Automatically deducts credits for AI interactions
-- **Credits API**: Manages credit transactions and balance updates
+- Credits features are disabled in this build
 
-### 💳 Payments (Stripe)
+### 💳 Payments (Stripe) (disabled)
 
-- **Checkout Sessions**: Handles payment processing
-- **Webhooks**: Processes payment confirmations
-- **Success Flow**: Confirms successful purchases and credit additions
+- Stripe payments are disabled in this build
 
 ### 🔌 API Layer
 
