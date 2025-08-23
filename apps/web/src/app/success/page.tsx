@@ -24,7 +24,7 @@ export default function SuccessPage() {
                 <Link href="/">Ir al chat</Link>
               </Button>
               <Button asChild variant="outline">
-                <Link href="/pricing">Precios</Link>
+                <Link href="/empresas">Empresas</Link>
               </Button>
             </div>
           </CardContent>

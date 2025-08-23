@@ -3,8 +3,8 @@ import "../globals.css";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "about:blanc - demo",
-  description: "about:blanc - demo",
+  title: "about:blanc - chat",
+  description: "chat",
 };
 
 export default function RootLayout({

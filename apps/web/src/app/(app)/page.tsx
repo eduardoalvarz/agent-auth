@@ -28,6 +28,14 @@ export default function DemoPage(): React.ReactNode {
     return false;
   });
 
+  const [exiting, setExiting] = useState(false);
+
+  const handleEmpresasNavigate = async () => {
+    setExiting(true);
+    await new Promise((res) => setTimeout(res, 500));
+    router.push("/empresas");
+  };
+
   useEffect(() => {
     if (!showSplash) return;
     const t = setTimeout(() => setShowSplash(false), 2000);
@@ -65,7 +73,7 @@ export default function DemoPage(): React.ReactNode {
   return (
     <React.Suspense fallback={<div>Loading (layout)...</div>}>
       <Toaster />
-      {!showSplash && <Navbar />}
+      {!showSplash && <Navbar onEmpresasNavigate={handleEmpresasNavigate} />}
       {showSplash && (
         <AboutBlancSplash
           onDone={() => setShowSplash(false)}
@@ -79,9 +87,13 @@ export default function DemoPage(): React.ReactNode {
       ) : showSplash ? null : (
         <motion.div
           key="chat"
-          initial={{ y: 16, opacity: 0, filter: "blur(8px)" }}
-          animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-          transition={{ type: "spring", stiffness: 220, damping: 26, duration: 0.75 }}
+          initial={{ y: -16, opacity: 0, filter: "blur(8px)" }}
+          animate={
+            exiting
+              ? { y: 16, opacity: 0, filter: "blur(8px)" }
+              : { y: 0, opacity: 1, filter: "blur(0px)" }
+          }
+          transition={{ type: "spring", stiffness: 220, damping: 26, duration: 0.5 }}
         >
           <ThreadProvider>
             <StreamProvider>

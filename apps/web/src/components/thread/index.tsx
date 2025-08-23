@@ -365,11 +365,11 @@ export function Thread() {
                   }}
                 >
                   <span className="text-xl font-semibold tracking-tight">
-                    SELL OUT
+                    about:<span className="text-muted-foreground">chat</span>
                   </span>
-                  <span className=" text-0xl text-muted-foreground italic">
+                  {/* <span className=" text-0xl text-muted-foreground italic">
                     retailer-demo
-                  </span>
+                  </span> */}
                 </motion.button>
               </div>
 
@@ -438,14 +438,14 @@ export function Thread() {
                     <div className="flex flex-col items-center gap-0 mb-6">
                       <div className="flex items-center gap-2">
                         <h1 className="text-3xl font-semibold tracking-tight">
-                          SELL OUT
+                          about:<span className="text-muted-foreground">chat</span>
                         </h1>
                         
                       </div>
-                      <span className="text-muted-foreground"> 
+                      {/* <span className="text-muted-foreground"> 
                       <span className="italic">retailer-demo</span>                       
                         <span> | about:chat </span>
-                      </span>
+                      </span> */}
                     </div>
                   )}
                   
