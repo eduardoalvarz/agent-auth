@@ -4,6 +4,7 @@ import { AIMessage, Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { getContentString } from "../utils";
 import { BranchSwitcher, CommandBar } from "./shared";
 import { MarkdownText } from "../markdown-text";
+import { StreamMarkdownFromText } from "@/components/StreamMarkdownFromText";
 import { LoadExternalComponent } from "@langchain/langgraph-sdk/react-ui";
 import { cn } from "@/lib/utils";
 import { ToolCalls, ToolResult } from "./tool-calls";
@@ -156,7 +157,11 @@ export function AssistantMessage({
           <>
             {contentString.length > 0 && (
               <div className="py-1">
-                <MarkdownText>{contentString}</MarkdownText>
+                {isLastMessage && isLoading ? (
+                  <StreamMarkdownFromText text={contentString} resetKey={message?.id} />
+                ) : (
+                  <MarkdownText>{contentString}</MarkdownText>
+                )}
               </div>
             )}
 

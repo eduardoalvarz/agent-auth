@@ -60,7 +60,7 @@ const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
   );
 };
 
-const defaultComponents: any = {
+export const defaultComponents: any = {
   h1: ({ className, ...props }: { className?: string }) => (
     <h1
       className={cn(
