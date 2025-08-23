@@ -22,6 +22,7 @@ export function createClient(apiUrl: string, jwt?: string) {
   if (jwt) {
     config.defaultHeaders = {
       Authorization: `Bearer ${jwt}`,
+      "x-supabase-access-token": jwt,
       "Content-Type": "application/json",
     };
   }

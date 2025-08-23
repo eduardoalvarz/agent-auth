@@ -13,6 +13,7 @@ import {
 } from "react";
 import { createClient } from "./client";
 import { useAuthContext } from "@/providers/Auth";
+import { getSupabaseClient } from "@/lib/auth/supabase-client";
 
 interface ThreadContextType {
   getThreads: () => Promise<Thread[]>;
@@ -58,26 +59,79 @@ export function ThreadProvider({ children }: { children: ReactNode }) {
 
   const getThreads = useCallback(async (): Promise<Thread[]> => {
     if (!finalApiUrl || !finalAssistantId) return [];
-    const jwt = session?.accessToken || undefined;
+    // Ensure we use a fresh JWT (refresh if expiring soon)
+    const supabase = getSupabaseClient();
+    let jwt = session?.accessToken || undefined;
+    try {
+      const {
+        data: { session: sbSession },
+      } = await supabase.auth.getSession();
+      const nowSec = Math.floor(Date.now() / 1000);
+      const exp = (sbSession as any)?.expires_at ?? 0;
+      if (exp && exp - nowSec < 30) {
+        await supabase.auth.refreshSession();
+      }
+      const {
+        data: { session: refreshed },
+      } = await supabase.auth.getSession();
+      jwt = (refreshed as any)?.access_token ?? jwt;
+    } catch (e) {
+      console.warn("[ThreadProvider] ensure fresh JWT failed", e);
+    }
+
     console.log(
       "[ThreadProvider] getThreads: apiUrl=",
       finalApiUrl,
       "assistantId=",
       finalAssistantId,
       "jwt=",
-      jwt,
+      jwt ? "present" : "missing",
     );
+
     const client = createClient(finalApiUrl, jwt);
     console.log("[ThreadProvider] Created client", client);
 
-    const threads = await client.threads.search({
-      metadata: {
-        ...getThreadSearchMetadata(finalAssistantId),
-      },
-      limit: 100,
-    });
-    console.log("[ThreadProvider] threads result", threads);
-    return threads;
+    const search = async () =>
+      client.threads.search({
+        metadata: {
+          ...getThreadSearchMetadata(finalAssistantId),
+        },
+        limit: 100,
+      });
+
+    try {
+      const threads = await search();
+      console.log("[ThreadProvider] threads result", threads);
+      return threads;
+    } catch (err: any) {
+      const status = err?.status ?? err?.response?.status;
+      const msg = String(err?.message ?? "");
+      const looks401 = status === 401 || /401|invalid jwt|expired/i.test(msg);
+      if (!looks401) throw err;
+
+      console.warn(
+        "[ThreadProvider] 401 detected, attempting token refresh & retry",
+      );
+      try {
+        await supabase.auth.refreshSession();
+        const {
+          data: { session: again },
+        } = await supabase.auth.getSession();
+        const newJwt = (again as any)?.access_token ?? jwt;
+        const retryClient = createClient(finalApiUrl, newJwt);
+        const threads = await retryClient.threads.search({
+          metadata: {
+            ...getThreadSearchMetadata(finalAssistantId),
+          },
+          limit: 100,
+        });
+        console.log("[ThreadProvider] threads result (after retry)", threads);
+        return threads;
+      } catch (err2) {
+        console.error("[ThreadProvider] retry after refresh failed", err2);
+        throw err2;
+      }
+    }
   }, [finalApiUrl, finalAssistantId, session]);
 
   const value = {

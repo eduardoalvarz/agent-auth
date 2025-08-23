@@ -37,7 +37,7 @@ async function* makeStreamFromString(text: string, delay = 40): AsyncIterable<st
 
 export default function Page() {
   const [runId, setRunId] = useState(0);
-  const [speed, setSpeed] = useState(10);
+  const [speed, setSpeed] = useState(40);
 
   const source = useMemo(() => {
     const myId = runId; // capture

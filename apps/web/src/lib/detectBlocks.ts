@@ -72,7 +72,7 @@ export class BlockDetector {
       // Advance buffer
       this.buffer = this.buffer.slice(idx + 1);
 
-      let line = lineWithNL; // includes trailing \n
+      const line = lineWithNL; // includes trailing \n
       let reprocess = false;
       do {
         reprocess = false;

@@ -99,6 +99,30 @@ export function AuthProvider({
     };
   }, [provider]);
 
+  // Proactively refresh session ~60s before expiry to avoid using an expired JWT
+  useEffect(() => {
+    if (!session?.expiresAt) return;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+
+    const scheduleRefresh = () => {
+      const nowMs = Date.now();
+      const expMs = session.expiresAt! * 1000;
+      const bufferMs = 60_000; // refresh 60s before expiry
+      const delay = Math.max(0, expMs - nowMs - bufferMs);
+      timeout = setTimeout(() => {
+        provider
+          .refreshSession()
+          .catch((e: any) => console.warn("[AuthProvider] proactive refresh failed", e));
+      }, delay);
+    };
+
+    scheduleRefresh();
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [session?.expiresAt, provider]);
+
   const value = {
     session,
     user,

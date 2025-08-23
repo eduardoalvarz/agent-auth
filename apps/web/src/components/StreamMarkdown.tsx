@@ -71,7 +71,6 @@ export const StreamMarkdown: React.FC<StreamMarkdownProps> = ({
           }
         }
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.error('StreamMarkdown error:', err);
       }
     }
@@ -82,7 +81,12 @@ export const StreamMarkdown: React.FC<StreamMarkdownProps> = ({
       cancelled = true;
       const iteratorLike = typeof source === 'function' ? (source as any)() : (source as any);
       if (iteratorLike && typeof iteratorLike.return === 'function') {
-        try { iteratorLike.return(); } catch {}
+        try {
+          iteratorLike.return();
+        } catch (e) {
+          // Safely ignore iterator termination errors to avoid leaking subscriptions
+          console.debug('Iterator return() failed (ignored)', e);
+        }
       }
     };
   }, [source]);

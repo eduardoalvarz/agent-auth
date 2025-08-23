@@ -34,11 +34,13 @@ export const StreamMarkdownFromText: React.FC<StreamMarkdownFromTextProps> = ({
 
   const detectorRef = useRef<BlockDetector | null>(null);
   const prevTextRef = useRef<string>('');
+  const nextIdRef = useRef(0);
 
   // Reset on key change
   useEffect(() => {
     detectorRef.current = new BlockDetector();
     prevTextRef.current = '';
+    nextIdRef.current = 0;
     setFinalBlocks([]);
     setDraft('');
     setMode(null);
@@ -66,7 +68,7 @@ export const StreamMarkdownFromText: React.FC<StreamMarkdownFromTextProps> = ({
     if (res.closed.length) {
       setFinalBlocks((prevBlocks) => [
         ...prevBlocks,
-        ...res.closed.map((markdown) => ({ id: `${prevBlocks.length}-${markdown.length}-${Date.now()}`, markdown })),
+        ...res.closed.map((markdown) => ({ id: `b-${nextIdRef.current++}`, markdown })),
       ]);
     }
     setDraft(res.draft);

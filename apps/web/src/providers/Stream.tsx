@@ -1,6 +1,6 @@
-import React, { createContext, useContext, ReactNode } from "react";
+import React, { createContext, useContext, ReactNode, useEffect, useState } from "react";
 import { useStream } from "@langchain/langgraph-sdk/react";
-import { type Message } from "@langchain/langgraph-sdk";
+import { type Message, type Thread } from "@langchain/langgraph-sdk";
 import {
   uiMessageReducer,
   isUIMessage,
@@ -17,6 +17,7 @@ import { ArrowRight } from "lucide-react";
 
 import { useThreads } from "./Thread";
 import { useAuthContext } from "@/providers/Auth";
+import { getSupabaseClient } from "@/lib/auth/supabase-client";
 
 export type StateType = { messages: Message[]; ui?: UIMessage[] };
 
@@ -51,16 +52,102 @@ const StreamSession = ({
   const [threadId, setThreadId] = useQueryState("threadId");
   const { getThreads, setThreads } = useThreads();
   const { session, isLoading: authLoading } = useAuthContext();
-  const jwt = session?.accessToken || undefined;
+  const [ready, setReady] = useState(false);
+  const [freshJwt, setFreshJwt] = useState<string | undefined>(undefined);
 
+  // Ensure we have a fresh JWT before initializing the stream
+  useEffect(() => {
+    if (authLoading) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const supabase = getSupabaseClient();
+        const { data: { session: sbSession } } = await supabase.auth.getSession();
+        const nowSec = Math.floor(Date.now() / 1000);
+        const exp = (sbSession as any)?.expires_at ?? 0;
+        if (exp && exp - nowSec < 30) {
+          await supabase.auth.refreshSession();
+        }
+        const { data: { session: refreshed } } = await supabase.auth.getSession();
+        const token = (refreshed as any)?.access_token || session?.accessToken || undefined;
+        if (!cancelled) setFreshJwt(token);
+      } catch (e) {
+        console.warn("[StreamSession] ensure fresh JWT failed", e);
+        if (!cancelled) setFreshJwt(session?.accessToken || undefined);
+      } finally {
+        if (!cancelled) setReady(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [authLoading, session?.accessToken]);
+
+  console.log(
+    "[StreamSession] init:",
+    "apiUrl=",
+    apiUrl,
+    "assistantId=",
+    assistantId,
+    "jwt=",
+    freshJwt ? "present" : "missing",
+  );
+
+  // Don't render stream hook until auth is fully loaded and a fresh JWT is ready
+  if (authLoading || !ready) {
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center">
+        <div className="text-center">
+          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <StreamCore
+      apiUrl={apiUrl}
+      assistantId={assistantId}
+      threadId={threadId ?? null}
+      freshJwt={freshJwt}
+      setThreadId={setThreadId}
+      getThreads={getThreads}
+      setThreads={setThreads}
+    >
+      {children}
+    </StreamCore>
+  );
+};
+
+// Child component that uses the stream hook once JWT is available
+const StreamCore: React.FC<{
+  apiUrl: string;
+  assistantId: string;
+  threadId: string | null;
+  freshJwt?: string;
+  setThreadId: (id: string | null) => void;
+  getThreads: () => Promise<Thread[]>;
+  setThreads: React.Dispatch<React.SetStateAction<Thread[]>>;
+  children: ReactNode;
+}> = ({
+  apiUrl,
+  assistantId,
+  threadId,
+  freshJwt,
+  setThreadId,
+  getThreads,
+  setThreads,
+  children,
+}) => {
   const streamValue = useTypedStream({
     apiUrl,
     assistantId,
-    threadId: threadId ?? null,
-    defaultHeaders: jwt
+    threadId,
+    defaultHeaders: freshJwt
       ? {
-          Authorization: `Bearer ${jwt}`,
-          "x-supabase-access-token": jwt,
+          Authorization: `Bearer ${freshJwt}`,
+          "x-supabase-access-token": freshJwt,
         }
       : undefined,
     onCustomEvent: (event, options) => {
@@ -78,18 +165,6 @@ const StreamSession = ({
       sleep().then(() => getThreads().then(setThreads).catch(console.error));
     },
   });
-
-  // Don't render children until auth is fully loaded
-  if (authLoading) {
-    return (
-      <div className="flex min-h-screen w-full items-center justify-center">
-        <div className="text-center">
-          <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <StreamContext.Provider value={streamValue}>
@@ -217,8 +292,8 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
 
   return (
     <StreamSession
-      apiUrl={apiUrl}
-      assistantId={assistantId}
+      apiUrl={finalApiUrl as string}
+      assistantId={finalAssistantId as string}
     >
       {children}
     </StreamSession>
