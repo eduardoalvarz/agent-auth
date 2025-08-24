@@ -9,17 +9,20 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import MarkdownSections from "@/components/markdown-sections";
+import { getSupabaseClient } from "@/lib/auth/supabase-client";
 
 function EmpresasContent({
   exiting,
   onOpenDemo,
   onOpenCoop,
   onOpenPink,
+  allowed,
 }: {
   exiting: boolean;
   onOpenDemo: () => void;
   onOpenCoop: () => void;
   onOpenPink: () => void;
+  allowed: Set<string>;
 }) {
   return (
     <motion.div
@@ -38,7 +41,7 @@ function EmpresasContent({
         <p className="text-sm text-muted-foreground">Elige las empresas que deseas administrar</p>
       </div>
       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-        <Card className="group rounded-xl border shadow-sm overflow-hidden bg-gradient-to-b from-card to-muted/20 transition-transform hover:-translate-y-1 hover:shadow-lg hover:border-primary/30">
+        <Card className="group rounded-xl border shadow-sm overflow-hidden bg-gradient-to-b from-card to-muted/20 transition-transform hover:-translate-y-1 hover:shadow-lg hover:border-primary/30" style={{ display: allowed.has("demo") ? undefined : "none" }}>
           <CardHeader className="flex flex-col items-center gap-4 py-6">
             <div className="h-24 w-24 md:h-28 md:w-28 rounded-full overflow-hidden bg-gradient-to-b from-muted/70 to-muted/50 flex items-center justify-center ring-2 ring-primary/10 ring-offset-2 ring-offset-background shadow-sm transition duration-200 group-hover:ring-primary/30">
               <img
@@ -62,7 +65,7 @@ function EmpresasContent({
           </CardFooter>
         </Card>
 
-        <Card className="group rounded-xl border shadow-sm overflow-hidden bg-gradient-to-b from-card to-muted/20 transition-transform hover:-translate-y-1 hover:shadow-lg hover:border-primary/30">
+        <Card className="group rounded-xl border shadow-sm overflow-hidden bg-gradient-to-b from-card to-muted/20 transition-transform hover:-translate-y-1 hover:shadow-lg hover:border-primary/30" style={{ display: allowed.has("coop") ? undefined : "none" }}>
           <CardHeader className="flex flex-col items-center gap-4 py-6">
             <div className="h-24 w-24 md:h-28 md:w-28 overflow-hidden rounded-full bg-gradient-to-b from-muted/70 to-muted/50 flex items-center justify-center ring-2 ring-primary/10 ring-offset-2 ring-offset-background shadow-sm transition duration-200 group-hover:ring-primary/30">
               <img
@@ -85,7 +88,7 @@ function EmpresasContent({
             </Button>
           </CardFooter>
         </Card>
-        <Card className="group rounded-xl border shadow-sm overflow-hidden bg-gradient-to-b from-card to-muted/20 transition-transform hover:-translate-y-1 hover:shadow-lg hover:border-primary/30">
+        <Card className="group rounded-xl border shadow-sm overflow-hidden bg-gradient-to-b from-card to-muted/20 transition-transform hover:-translate-y-1 hover:shadow-lg hover:border-primary/30" style={{ display: allowed.has("pinkcheladas") ? undefined : "none" }}>
           <CardHeader className="flex flex-col items-center gap-4 py-6">
             <div className="h-24 w-24 md:h-28 md:w-28 overflow-hidden rounded-full bg-gradient-to-b from-muted/70 to-muted/50 flex items-center justify-center ring-2 ring-primary/10 ring-offset-2 ring-offset-background shadow-sm transition duration-200 group-hover:ring-primary/30">
               <img
@@ -122,6 +125,8 @@ export default function EmpresasPage() {
   const [coopLoading, setCoopLoading] = useState(false);
   const [coopContent, setCoopContent] = useState<string | null>(null);
   const [coopError, setCoopError] = useState<string | null>(null);
+  const [allowed, setAllowed] = useState<Set<string>>(new Set());
+  const [allowedLoading, setAllowedLoading] = useState(true);
 
   const handleChatNavigate = async () => {
     setExiting(true);
@@ -139,7 +144,7 @@ export default function EmpresasPage() {
       if (!res.ok) throw new Error("fetch_failed");
       const text = await res.text();
       setCoopContent(text);
-    } catch (e) {
+    } catch {
       setCoopError("No se pudo cargar el contexto de COOP.");
     } finally {
       setCoopLoading(false);
@@ -153,6 +158,30 @@ export default function EmpresasPage() {
       ensureCoopContent();
     }
   };
+
+  useEffect(() => {
+    if (isLoading || !isAuthenticated) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        setAllowedLoading(true);
+        const supabase = getSupabaseClient();
+        const { data, error } = await supabase.from("companies").select("slug");
+        if (!cancelled) {
+          if (!error && data) {
+            setAllowed(new Set(data.map((r: any) => String(r.slug || "").toLowerCase())));
+          } else {
+            setAllowed(new Set());
+          }
+        }
+      } finally {
+        if (!cancelled) setAllowedLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isLoading, isAuthenticated]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -173,6 +202,15 @@ export default function EmpresasPage() {
     return null;
   }
 
+  if (allowedLoading) {
+    return (
+      <>
+        <Navbar />
+        <div className="container mx-auto px-4 py-10">Cargando...</div>
+      </>
+    );
+  }
+
   return (
     <>
       <Navbar onChatNavigate={handleChatNavigate} />
@@ -181,6 +219,7 @@ export default function EmpresasPage() {
         onOpenDemo={() => openDialog("DEMO")}
         onOpenCoop={() => openDialog("COOP")}
         onOpenPink={() => openDialog("PINKCHELADAS")}
+        allowed={allowed}
       />
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl p-0 overflow-hidden">

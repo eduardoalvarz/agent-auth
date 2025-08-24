@@ -123,8 +123,8 @@ export class SupabaseAuthProvider implements AuthProvider {
       const { data, error } = await this.supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          // Always send OAuth back to callback endpoint to exchange code for session
-          redirectTo: `${this.options.redirectUrl}/api/auth/callback`,
+          // Send OAuth back to CLIENT callback page to exchange code in-browser (PKCE)
+          redirectTo: `${this.options.redirectUrl}/auth/callback`,
           queryParams: {
             prompt: "select_account",
           },

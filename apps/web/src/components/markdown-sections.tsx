@@ -21,7 +21,7 @@ function slugify(input: string) {
 
 function splitMarkdownIntoSections(markdown: string, splitLevel = 2): { intro: string; sections: Section[] } {
   const lines = markdown.split(/\r?\n/);
-  let intro: string[] = [];
+  const intro: string[] = [];
   const sections: Section[] = [];
   let current: { title: string; content: string[] } | null = null;
 
