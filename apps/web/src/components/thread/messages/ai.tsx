@@ -156,7 +156,7 @@ export function AssistantMessage({
         ) : (
           <>
             {contentString.length > 0 && (
-              <div className="py-1">
+              <div className="py-1 text-sm">
                 {isLastMessage && isLoading ? (
                   <StreamMarkdownFromText text={contentString} resetKey={message?.id} />
                 ) : (

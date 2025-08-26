@@ -19,6 +19,10 @@ const searchTavily = new TavilySearchResults({
  * BigQuery configuration from environment variables
  */
 const BQ_LOCATION = process.env.BQ_LOCATION;
+// Safety caps to avoid blowing up LLM context with massive tool outputs
+const MAX_ROWS = Number(process.env.BQ_MAX_ROWS || 200);
+const MAX_CELL_CHARS = Number(process.env.BQ_MAX_CELL_CHARS || 200);
+const MAX_TOTAL_CHARS = Number(process.env.BQ_MAX_TOTAL_CHARS || 20000);
 
 function getBQEnv() {
   const projectId =
@@ -172,8 +176,57 @@ async function runSQL(o: { sql: string }) {
   const jobConfig: any = { query: normalized, useLegacySql: false };
   if (BQ_LOCATION) jobConfig.location = BQ_LOCATION;
   const [job] = await bigquery.createQueryJob(jobConfig);
-  const [rows] = await job.getQueryResults();
-  return { rows, rowCount: rows.length, jobId: (job as any).id };
+
+  // Fetch only the first page of results to cap payload size
+  const result = await (job as any).getQueryResults({ maxResults: MAX_ROWS });
+  const rows: any[] = result?.[0] || [];
+  const apiResponse: any = result?.[2] || {};
+
+  // Trim cell values to avoid very large strings/objects
+  const trimCellValue = (v: any): any => {
+    if (v == null) return v;
+    if (typeof v === "string") {
+      return v.length > MAX_CELL_CHARS ? v.slice(0, MAX_CELL_CHARS) + "…" : v;
+    }
+    if (typeof v === "object") {
+      try {
+        const s = JSON.stringify(v);
+        return s.length > MAX_CELL_CHARS ? s.slice(0, MAX_CELL_CHARS) + "…" : s;
+      } catch {
+        const s = String(v);
+        return s.length > MAX_CELL_CHARS ? s.slice(0, MAX_CELL_CHARS) + "…" : s;
+      }
+    }
+    return v; // numbers/booleans stay as-is
+  };
+
+  let preview = rows.map((row) => {
+    const out: Record<string, any> = {};
+    for (const [k, val] of Object.entries(row)) out[k] = trimCellValue(val);
+    return out;
+  });
+
+  // Enforce a total JSON size cap by reducing the number of rows if necessary
+  let json = JSON.stringify(preview);
+  while (json.length > MAX_TOTAL_CHARS && preview.length > 1) {
+    preview = preview.slice(0, Math.max(1, Math.floor(preview.length * 0.8)));
+    json = JSON.stringify(preview);
+  }
+
+  const truncated =
+    (Array.isArray(rows) && rows.length >= MAX_ROWS) || json.length > MAX_TOTAL_CHARS || !!apiResponse?.pageToken;
+  const totalRows = Number(apiResponse?.totalRows) || undefined;
+
+  return {
+    rows: preview,
+    returned: preview.length,
+    rowCount: totalRows ?? rows.length,
+    truncated,
+    jobId: (job as any).id,
+    notice: truncated
+      ? `Resultados truncados para proteger el contexto (máx ${MAX_ROWS} filas, ~${MAX_CELL_CHARS} chars por celda). Agrega filtros o GROUP BY para reducir volumen.`
+      : undefined,
+  };
 }
 
 export const BigQueryTool = tool(
@@ -181,7 +234,7 @@ export const BigQueryTool = tool(
   {
     name: "BigQueryTool",
     description:
-      "Ejecuta una sentencia SQL arbitraria en BigQuery y devuelve las filas resultantes.",
+      "Ejecuta una sentencia SQL arbitraria en BigQuery y devuelve una vista previa capada de las filas resultantes (truncada para proteger el contexto).",
     schema: SQLSchema,
   },
 );

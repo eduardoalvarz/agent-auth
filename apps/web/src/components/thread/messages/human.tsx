@@ -29,7 +29,7 @@ function EditableContent({
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
-      className="focus-visible:ring-0"
+      className="focus-visible:ring-0 text-sm text-zinc-900 placeholder:text-zinc-400"
     />
   );
 }
@@ -98,6 +98,7 @@ export function HumanMessage({
                           key={idx}
                           block={block}
                           size="md"
+                          theme="light"
                         />,
                       );
                     }
@@ -109,7 +110,7 @@ export function HumanMessage({
             )}
             {/* Render text if present, otherwise fallback to file/image name */}
             {contentString ? (
-              <p className="bg-muted ml-auto w-fit rounded-3xl px-4 py-2 text-right whitespace-pre-wrap">
+              <p className="ml-auto m-0 w-fit rounded-3xl border-none px-4 py-2 text-right whitespace-pre-wrap text-sm bg-[#f5f5f5] text-zinc-900">
                 {contentString}
               </p>
             ) : null}

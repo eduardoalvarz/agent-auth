@@ -15,6 +15,7 @@ import {
 import { TooltipIconButton } from "./tooltip-icon-button";
 import {
   ArrowDown,
+  ArrowUp,
   LoaderCircle,
   PanelRightOpen,
   PanelRightClose,
@@ -22,14 +23,15 @@ import {
   XIcon,
   Plus,
   Wrench,
+  Database,
 } from "lucide-react";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import ThreadHistory from "./history";
 import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { Label } from "../ui/label";
-import { Switch } from "../ui/switch";
+
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { ContentBlocksPreview } from "./ContentBlocksPreview";
 import {
@@ -71,10 +73,10 @@ function ScrollToBottom(props: { className?: string }) {
   return (
     <Button
       variant="outline"
-      className={props.className}
+      className={cn("bg-[#f5f5f5] border border-[#e5e5e5] text-zinc-900 hover:bg-black/5 hover:text-zinc-900 focus-visible:ring-black/10", props.className)}
       onClick={() => scrollToBottom()}
     >
-      <ArrowDown className="h-4 w-4" />
+      <ArrowDown className="h-4 w-4 text-zinc-900" />
       <span>Ir al final</span>
     </Button>
   );
@@ -181,8 +183,13 @@ export function Thread() {
 
     const toolMessages = ensureToolCallsHaveResponses(stream.messages);
 
+    const dsContext = selectedDatasets.length
+      ? { selectedDatasets }
+      : undefined;
     const context =
-      Object.keys(artifactContext).length > 0 ? artifactContext : undefined;
+      Object.keys(artifactContext).length > 0
+        ? { ...artifactContext, ...dsContext }
+        : dsContext;
 
     try {
       stream.submit(
@@ -261,6 +268,42 @@ export function Thread() {
   const hasNoAIOrToolMessages = !messages.find(
     (m) => m.type === "ai" || m.type === "tool",
   );
+
+  // --- Dataset picker state ---
+  // Note: purely UI for now; we include it in the streaming context for future backend use.
+  const [selectedDatasets, setSelectedDatasets] = useState<string[]>([]);
+  const [datasetsMenuOpen, setDatasetsMenuOpen] = useState(false);
+  const DATASET_GROUPS: Array<{
+    company: string;
+    datasets: { id: string; label: string }[];
+  }> = [
+    {
+      company: "COOP",
+      datasets: [
+        { id: "coop_sellout", label: "coop_sellout" },
+        { id: "coop_inventarios", label: "coop_inventarios" },
+      ],
+    },
+    { company: "DEMO", datasets: [] },
+    { company: "PINKCHELADAS", datasets: [] },
+  ];
+
+  const labelMap: Record<string, string> = {
+    coop_sellout: "COOP sellout",
+    coop_inventarios: "COOP inventarios",
+  };
+  const selectedSummary = () => {
+    if (!selectedDatasets.length) return "Selecciona una base de datos";
+    return selectedDatasets
+      .map((id) => labelMap[id] || id)
+      .join(" · ");
+  };
+  const chipDotColor = (id: string) => {
+    if (id.startsWith("coop_")) return "bg-emerald-500";
+    if (id.startsWith("demo_")) return "bg-zinc-300";
+    if (id.toLowerCase().startsWith("pink")) return "bg-rose-500";
+    return "bg-gray-400";
+  };
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -373,7 +416,22 @@ export function Thread() {
                 </motion.button>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <TooltipIconButton
+                  size="lg"
+                  className={cn(
+                    "p-4",
+                    hideToolCalls
+                      ? "text-zinc-400 hover:text-zinc-600"
+                      : "text-zinc-900 hover:text-zinc-900",
+                  )}
+                  tooltip={hideToolCalls ? "Mostrar tools" : "Ocultar tools"}
+                  variant="ghost"
+                  aria-pressed={hideToolCalls}
+                  onClick={() => setHideToolCalls((p) => !p)}
+                >
+                  <Wrench className="size-5" />
+                </TooltipIconButton>
                 <TooltipIconButton
                   size="lg"
                   className="p-4"
@@ -453,99 +511,181 @@ export function Thread() {
                   <div
                     ref={dropRef}
                     className={cn(
-                      "bg-muted relative z-10 mx-auto mb-8 w-full max-w-3xl rounded-2xl shadow-xs transition-all",
+                      "relative z-10 mx-auto mb-4 w-full max-w-3xl rounded-[2rem] bg-transparent transition-all",
                       dragOver
-                        ? "border-primary border-2 border-dotted"
-                        : "border border-solid",
+                        ? "border-white/50 border-2 border-dotted p-1"
+                        : undefined
                     )}
                   >
                     <form
                       onSubmit={handleSubmit}
-                      className="mx-auto grid max-w-3xl grid-rows-[1fr_auto] gap-2"
+                      className="mx-auto max-w-3xl"
                     >
-                      <ContentBlocksPreview
-                        blocks={contentBlocks}
-                        onRemove={removeBlock}
-                      />
-                      <textarea
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onPaste={handlePaste}
-                        onKeyDown={(e) => {
-                          if (
-                            e.key === "Enter" &&
-                            !e.shiftKey &&
-                            !e.metaKey &&
-                            !e.nativeEvent.isComposing
-                          ) {
-                            e.preventDefault();
-                            const el = e.target as HTMLElement | undefined;
-                            const form = el?.closest("form");
-                            form?.requestSubmit();
-                          }
-                        }}
-                        placeholder="Escribe tu mensaje..."
-                        className="field-sizing-content resize-none border-none bg-transparent p-3.5 pb-0 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
-                      />
-
-                      <div className="flex items-center gap-4 p-2 pt-4">
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <Switch
-                              id="render-tool-calls"
-                              checked={hideToolCalls ?? false}
-                              onCheckedChange={setHideToolCalls}
-                            />
-                            <Label
-                              htmlFor="render-tool-calls"
-                              className="text-sm text-gray-600 flex items-center"
-                              title="Ocultar herramientas"
-                            >
-                              <Wrench className="size-4" />
-                              <span className="sr-only">Ocultar herramientas</span>
-                            </Label>
-                          </div>
-                        </div>
-                        <TooltipIconButton
-                          tooltip="Adjuntar archivos"
-                          variant="ghost"
-                          size="icon"
-                          className="p-2 rounded-full hover:bg-gray-100 text-gray-700"
-                          onClick={() =>
-                            document.getElementById("file-input")?.click()
-                          }
-                        >
-                          <Plus className="size-5" />
-                        </TooltipIconButton>
-                        <input
-                          id="file-input"
-                          type="file"
-                          onChange={handleFileUpload}
-                          multiple
-                          accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-                          className="hidden"
+                      <div className="mx-1 rounded-4xl overflow-hidden border border-white/30 bg-black/80 backdrop-blur-sm shadow-lg shadow-black/20 focus-within:ring-1 focus-within:ring-white/30">
+                        <ContentBlocksPreview
+                          blocks={contentBlocks}
+                          onRemove={removeBlock}
+                          className="px-2 pt-2 pb-0"
                         />
-                        {stream.isLoading ? (
-                          <Button
-                            key="stop"
-                            onClick={() => stream.stop()}
-                            className="ml-auto"
-                          >
-                            <LoaderCircle className="h-4 w-4 animate-spin" />
-                            Cancelar
-                          </Button>
-                        ) : (
-                          <Button
-                            type="submit"
-                            className="ml-auto shadow-md transition-all"
-                            disabled={
-                              isLoading ||
-                              (!input.trim() && contentBlocks.length === 0)
+                        <div className="relative flex items-center gap-2 px-2.5 py-2">
+                          {/* Left: Bases trigger + chips (content-sized, capped at 1/3) */}
+                          <div className="flex items-center gap-2 max-w-[33%] min-w-0 flex-grow-0 flex-shrink">
+                          {/* Database trigger and selection */}
+                          <DropdownMenu.Root open={datasetsMenuOpen} onOpenChange={setDatasetsMenuOpen}>
+                            <DropdownMenu.Trigger asChild>
+                              <button
+                                type="button"
+                                className="flex h-10 items-center gap-2 text-white/70 hover:text-white focus:outline-none"
+                                title="Seleccionar bases de datos"
+                              >
+                                <Database className="size-4" />
+                                <span className="hidden sm:inline text-[11px] uppercase tracking-wide leading-5">Bases</span>
+                              </button>
+                            </DropdownMenu.Trigger>
+                            <DropdownMenu.Portal>
+                              <DropdownMenu.Content
+                                side="bottom"
+                                align="start"
+                                sideOffset={12}
+                                alignOffset={96}
+                                collisionPadding={24}
+                                className="z-50 min-w-[220px] rounded-3xl border border-white/15 bg-black/80 backdrop-blur-sm text-white p-1.5 shadow-lg shadow-black/30 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
+                              >
+                                {DATASET_GROUPS.map((group, gi) => (
+                                  <div key={group.company} className="px-1 py-0.5">
+                                    <DropdownMenu.Label className="px-2 py-1 text-[10px] uppercase tracking-wide text-white/50">
+                                      {group.company}
+                                    </DropdownMenu.Label>
+                                    {group.datasets.length ? (
+                                      group.datasets.map((d) => {
+                                        const checked = selectedDatasets.includes(d.id);
+                                        return (
+                                          <DropdownMenu.CheckboxItem
+                                            key={d.id}
+                                            checked={checked}
+                                            onCheckedChange={(v) => {
+                                              const isChecked = v === true;
+                                              setSelectedDatasets((prev) => {
+                                                const set = new Set(prev);
+                                                if (isChecked) set.add(d.id);
+                                                else set.delete(d.id);
+                                                return Array.from(set);
+                                              });
+                                            }}
+                                            className="relative flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-white/90 hover:bg-white/10 data-[highlighted]:bg-white/10 data-[highlighted]:text-white data-[state=checked]:bg-white/15 data-[state=checked]:text-white focus:bg-white/10 focus:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/20 transition-colors"
+                                          >
+                                            <span className="flex-1">{d.label}</span>
+                                          </DropdownMenu.CheckboxItem>
+                                        );
+                                      })
+                                    ) : (
+                                      <div className="px-2 py-1 text-xs text-white/60">Próximamente</div>
+                                      )}
+                                    {gi < DATASET_GROUPS.length - 1 && (
+                                      <DropdownMenu.Separator className="my-1 h-px bg-white/15" />
+                                    )}
+                                  </div>
+                                ))}
+                              </DropdownMenu.Content>
+                            </DropdownMenu.Portal>
+                          </DropdownMenu.Root>
+                          {/* Selected dataset chips (condensed) */}
+                          {selectedDatasets.length > 0 && (
+                            <div
+                              className="min-w-0 flex flex-wrap items-center gap-1"
+                              aria-label={selectedSummary()}
+                            >
+                              {selectedDatasets.map((id) => (
+                                <span
+                                  key={id}
+                                  className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/5 px-2 py-0.5 text-xs text-white/90 mr-1 hover:bg-white/10 ring-1 ring-white/10 transition-colors"
+                                >
+                                  <span className="truncate max-w-[10rem]">{labelMap[id] || id}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setSelectedDatasets((prev) => prev.filter((x) => x !== id))
+                                    }
+                                    className="ml-0.5 inline-flex items-center justify-center rounded-full p-0.5 hover:bg-white/10 active:bg-white/20 transition-colors"
+                                    aria-label={`Quitar ${labelMap[id] || id}`}
+                                  >
+                                    <XIcon className="size-3.5 text-white/70" />
+                                  </button>
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          </div>
+                          {/* Dynamic divider between left and right */}
+                          <div className="mx-1 h-5 w-px bg-white" />
+                          {/* Right: input area (fills remaining space) */}
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <textarea
+                          value={input}
+                          onChange={(e) => setInput(e.target.value)}
+                          onPaste={handlePaste}
+                          onKeyDown={(e) => {
+                            if (
+                              e.key === "Enter" &&
+                              !e.shiftKey &&
+                              !e.metaKey &&
+                              !e.nativeEvent.isComposing
+                            ) {
+                              e.preventDefault();
+                              const el = e.target as HTMLElement | undefined;
+                              const form = el?.closest("form");
+                              form?.requestSubmit();
                             }
-                          >
-                            Enviar
-                          </Button>
-                        )}
+                          }}
+                          placeholder="Escribe tu mensaje..."
+                          rows={1}
+                          className="field-sizing-content flex-1 min-h-[40px] resize-none border-none bg-transparent px-2 py-2 text-sm leading-5 text-white placeholder:text-white/60 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none max-h-36 overflow-y-auto caret-white selection:bg-white/10 selection:text-inherit"
+                        />
+                        <div className="ml-auto flex items-center gap-1.5">
+                          {contentBlocks.length === 0 && (
+                            <TooltipIconButton
+                              tooltip="Adjuntar archivos"
+                              variant="ghost"
+                              size="icon"
+                              className="p-1.5 rounded-full hover:bg-white/10 text-white focus-visible:ring-white/20"
+                              onClick={() =>
+                                document.getElementById("file-input")?.click()
+                              }
+                            >
+                              <Plus className="size-5 text-white" />
+                            </TooltipIconButton>
+                          )}
+                          <input
+                            id="file-input"
+                            type="file"
+                            onChange={handleFileUpload}
+                            accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+                            className="hidden"
+                          />
+                          {stream.isLoading ? (
+                            <button
+                              type="button"
+                              onClick={() => stream.stop()}
+                              className="inline-flex size-8 items-center justify-center rounded-full bg-white/80 text-zinc-900 hover:bg-white focus-visible:ring-2 focus-visible:ring-white/30"
+                              title="Detener"
+                            >
+                              <LoaderCircle className="size-4 animate-spin" />
+                            </button>
+                          ) : (
+                            <button
+                              type="submit"
+                              disabled={
+                                isLoading || (!input.trim() && contentBlocks.length === 0)
+                              }
+                              className="inline-flex size-8 items-center justify-center rounded-full bg-white text-zinc-900 hover:bg-white/90 disabled:bg-white/20 disabled:text-white/60 focus-visible:ring-2 focus-visible:ring-white/30"
+                              title="Enviar"
+                            >
+                              <ArrowUp className="size-4" />
+                            </button>
+                          )}
+                        </div>
+                        </div>
+                        </div>
                       </div>
                     </form>
                   </div>
