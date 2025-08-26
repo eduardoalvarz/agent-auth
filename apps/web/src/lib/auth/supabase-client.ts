@@ -60,9 +60,6 @@ type User = {
   email: string;
 } | null;
 
-// Export the client instance for direct use
-export const supabase = getSupabaseClient();
-
 export function useUser() {
   const [user, setUser] = useState<User>(null);
   const [loading, setLoading] = useState(true);

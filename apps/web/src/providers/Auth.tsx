@@ -39,12 +39,6 @@ interface AuthContextProps {
   }>;
 }
 
-// Create default authentication provider (Supabase in this case)
-const authProvider = new SupabaseAuthProvider({
-  redirectUrl:
-    typeof window !== "undefined" ? window.location.origin : undefined,
-});
-
 // Create auth context
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
@@ -55,8 +49,14 @@ export function AuthProvider({
   children: React.ReactNode;
   customAuthProvider?: CustomAuthProvider;
 }) {
-  // Use the provided auth provider or default to Supabase
-  const provider = customAuthProvider || authProvider;
+  // Use the provided auth provider or default to Supabase (created at runtime on client)
+  const provider = React.useMemo(() => {
+    if (customAuthProvider) return customAuthProvider;
+    return new SupabaseAuthProvider({
+      redirectUrl:
+        typeof window !== "undefined" ? window.location.origin : undefined,
+    });
+  }, [customAuthProvider]);
 
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);

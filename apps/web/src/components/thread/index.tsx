@@ -32,7 +32,7 @@ import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import ThreadHistory from "./history";
 import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { supabase } from "@/lib/auth/supabase-client";
+import { getSupabaseClient } from "@/lib/auth/supabase-client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useFileUpload } from "@/hooks/use-file-upload";
@@ -161,6 +161,7 @@ export function Thread() {
   const transcribeAudio = async (blob: Blob) => {
     try {
       setIsTranscribing(true);
+      const supabase = getSupabaseClient();
       const {
         data: { session },
       } = await supabase.auth.getSession();
