@@ -287,7 +287,8 @@ export class SupabaseAuthProvider implements AuthProvider {
   }
 
   onAuthStateChange(callback: AuthStateChangeCallback) {
-    const { data } = this.getClient().auth.onAuthStateChange((_event, session) => {
+    const { data } = this.getClient().auth.onAuthStateChange(
+      (_event: unknown, session: any) => {
       callback(this.formatSession(session));
     });
 
