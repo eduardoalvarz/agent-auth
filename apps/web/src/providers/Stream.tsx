@@ -198,8 +198,8 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   // - In production: do NOT rely on URL params; use env vars or safe defaults.
   // - In development: allow URL params to override env vars.
   const finalApiUrl = isProd
-    ? (envApiUrl || DEFAULT_API_URL)
-    : (apiUrl || envApiUrl);
+    ? (envApiUrl || "/api")
+    : (apiUrl || envApiUrl || DEFAULT_API_URL);
   const finalAssistantId = isProd
     ? (envAssistantId || DEFAULT_ASSISTANT_ID)
     : (assistantId || envAssistantId);

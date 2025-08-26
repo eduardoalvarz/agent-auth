@@ -6,8 +6,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * @returns true if google auth is disabled
+ * Always disable Google Auth in the UI.
+ * The buttons in Signin/Signup check this function.
  */
 export function googleAuthDisabled() {
-  return process.env.NEXT_PUBLIC_GOOGLE_AUTH_DISABLED === "true";
+  return true;
 }
