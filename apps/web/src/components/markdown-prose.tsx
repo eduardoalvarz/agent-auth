@@ -51,8 +51,8 @@ export function MarkdownProse({ content }: { content: string }) {
           ),
           hr: ({ node, ...props }: any) => <hr className="my-6 border-t" {...props} />,
           table: ({ node, ...props }: any) => (
-            <div className="my-4 overflow-x-auto">
-              <table className="w-full border-collapse text-sm" {...props} />
+            <div className="my-4 overflow-x-auto [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent">
+              <table className="w-full min-w-max border-collapse text-sm" {...props} />
             </div>
           ),
           thead: ({ node, ...props }: any) => (

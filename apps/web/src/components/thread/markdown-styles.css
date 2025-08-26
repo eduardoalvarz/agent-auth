@@ -27,7 +27,8 @@
 
 .markdown-content table {
   border-collapse: collapse;
-  width: 100%;
+  width: max-content; /* allow table to grow wider than container */
+  min-width: 100%; /* but at least fill the container */
 }
 
 .markdown-content th,

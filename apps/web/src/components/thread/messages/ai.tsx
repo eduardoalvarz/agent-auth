@@ -157,8 +157,8 @@ export function AssistantMessage({
   }
 
   return (
-    <div className="group mr-auto flex items-start gap-2">
-      <div className="flex flex-col gap-2">
+    <div className="group mr-auto flex min-w-0 max-w-full items-start gap-2">
+      <div className="flex min-w-0 w-full flex-col gap-2">
         {isToolResult ? (
           <>
             <ToolResult message={message} />
@@ -171,7 +171,7 @@ export function AssistantMessage({
         ) : (
           <>
             {contentString.length > 0 && (
-              <div className="py-1 text-sm">
+              <div className="py-1 text-sm min-w-0">
                 {isLastMessage && isLoading ? (
                   <StreamMarkdownFromText text={contentString} resetKey={message?.id} />
                 ) : (

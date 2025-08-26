@@ -6,7 +6,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
-import { FC, memo, useState } from "react";
+import { FC, memo, useEffect, useRef, useState } from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { SyntaxHighlighter } from "@/components/thread/syntax-highlighter";
 
@@ -56,6 +56,161 @@ const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
         {!isCopied && <CopyIcon />}
         {isCopied && <CheckIcon />}
       </TooltipIconButton>
+    </div>
+  );
+};
+
+// Custom scrollable table with an always-visible horizontal scrollbar below when overflowing
+const ScrollableTable: FC<
+  { className?: string } & React.ComponentPropsWithoutRef<'table'>
+> = ({ className, ...props }) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const [overflowing, setOverflowing] = useState(false);
+  const [thumbLeft, setThumbLeft] = useState(0); // px
+  const [thumbWidth, setThumbWidth] = useState(0); // px
+  const [percent, setPercent] = useState(0); // 0-100
+  const [atEnd, setAtEnd] = useState(false);
+  const draggingRef = useRef(false);
+
+  const recalc = () => {
+    const el = containerRef.current;
+    if (!el) return;
+    const cw = el.clientWidth;
+    const sw = el.scrollWidth;
+    let sl = el.scrollLeft;
+    const isOverflowing = sw > cw + 1; // tolerate rounding
+    setOverflowing(isOverflowing);
+    if (!isOverflowing) {
+      setThumbLeft(0);
+      setThumbWidth(0);
+      return;
+    }
+    // Use the actual visible track width for perfect mapping
+    const trackEl = trackRef.current;
+    const trackW = trackEl ? trackEl.clientWidth : cw;
+    const minThumb = 28; // px
+    const tw = Math.max((cw / sw) * trackW, minThumb);
+    const maxLeft = trackW - tw;
+    const scrollMax = Math.max(sw - cw, 0);
+    // Snap to ends to avoid fractional off-by-ones from the browser
+    if (scrollMax > 0) {
+      if (scrollMax - sl <= 1) sl = scrollMax;
+      if (sl <= 1) sl = 0;
+    }
+    const ratio = scrollMax > 0 ? sl / scrollMax : 0;
+    let left = ratio * maxLeft;
+    // Snap thumb to the exact edges when very close
+    if (ratio >= 0.999) left = maxLeft;
+    if (ratio <= 0.001) left = 0;
+    setThumbWidth(tw);
+    setThumbLeft(left);
+    const pct = Math.max(0, Math.min(100, Math.round(ratio * 100)));
+    setPercent(pct);
+    setAtEnd(ratio >= 0.999);
+  };
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const onScroll = () => recalc();
+    el.addEventListener('scroll', onScroll, { passive: true });
+    recalc();
+    const ro = new ResizeObserver(() => recalc());
+    ro.observe(el);
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      ro.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    // Recalc on font load/layout changes
+    const tid = window.setTimeout(recalc, 0);
+    return () => window.clearTimeout(tid);
+  });
+
+  const setScrollByPointer = (clientX: number) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const trackEl = trackRef.current;
+    const rect = (trackEl ?? el).getBoundingClientRect();
+    const trackW = (trackEl?.clientWidth ?? el.clientWidth) || rect.width;
+    const maxThumbLeft = Math.max(trackW - thumbWidth, 0);
+    const x = Math.min(Math.max(clientX - rect.left - thumbWidth / 2, 0), maxThumbLeft);
+    const cw = el.clientWidth;
+    const sw = el.scrollWidth;
+    const scrollMax = Math.max(sw - cw, 0);
+    let scrollLeft = maxThumbLeft > 0 && scrollMax > 0 ? (x / maxThumbLeft) * scrollMax : 0;
+    // Snap to edges if near the ends
+    if (maxThumbLeft > 0) {
+      if (maxThumbLeft - x <= 1) scrollLeft = scrollMax;
+      if (x <= 1) scrollLeft = 0;
+    }
+    el.scrollLeft = scrollLeft;
+  };
+
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      if (!draggingRef.current) return;
+      setScrollByPointer(e.clientX);
+    };
+    const onUp = () => {
+      draggingRef.current = false;
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+  }, [thumbWidth]);
+
+  return (
+    <div className="my-5 w-full">
+      <div
+        ref={containerRef}
+        className="w-full overflow-x-auto pb-2 scrollbar scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent"
+      >
+        <table
+          className={cn('min-w-max border-collapse', className)}
+          style={{ width: 'max-content', minWidth: '100%' }}
+          {...props}
+        />
+      </div>
+      {overflowing && (
+        <div
+          ref={trackRef}
+          className="mt-1 h-2 w-full select-none rounded-none overflow-hidden bg-black/10"
+          onPointerDown={(e) => {
+            draggingRef.current = true;
+            setScrollByPointer(e.clientX);
+            const onMove = (ev: PointerEvent) => draggingRef.current && setScrollByPointer(ev.clientX);
+            const onUp = () => {
+              draggingRef.current = false;
+              window.removeEventListener('pointermove', onMove);
+              window.removeEventListener('pointerup', onUp);
+            };
+            window.addEventListener('pointermove', onMove);
+            window.addEventListener('pointerup', onUp);
+          }}
+          role="scrollbar"
+          aria-label="Desplazamiento horizontal de la tabla"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={percent}
+        >
+          <div
+            className="relative h-full"
+            style={{ width: '100%' }}
+          >
+            <div
+              className="absolute inset-y-0 rounded-none bg-black/80"
+              style={atEnd ? { right: 0, width: `${thumbWidth}px` } : { left: `${thumbLeft}px`, width: `${thumbWidth}px` }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -152,18 +307,15 @@ export const defaultComponents: any = {
     />
   ),
   table: ({ className, ...props }: { className?: string }) => (
-    <table
-      className={cn(
-        "my-5 w-full border-separate border-spacing-0 overflow-y-auto",
-        className,
-      )}
+    <ScrollableTable
+      className={className}
       {...props}
     />
   ),
   th: ({ className, ...props }: { className?: string }) => (
     <th
       className={cn(
-        "bg-muted px-4 py-2 text-left font-bold first:rounded-tl-lg last:rounded-tr-lg [&[align=center]]:text-center [&[align=right]]:text-right",
+        "bg-muted px-4 py-2 text-left font-bold whitespace-nowrap first:rounded-tl-lg last:rounded-tr-lg first:pl-0 last:pr-0 [&[align=center]]:text-center [&[align=right]]:text-right",
         className,
       )}
       {...props}
@@ -172,7 +324,7 @@ export const defaultComponents: any = {
   td: ({ className, ...props }: { className?: string }) => (
     <td
       className={cn(
-        "border-b border-l px-4 py-2 text-left last:border-r [&[align=center]]:text-center [&[align=right]]:text-right",
+        "border-b border-l px-4 py-2 text-left whitespace-nowrap first:pl-0 last:pr-0 first:border-l-0 last:border-r [&[align=center]]:text-center [&[align=right]]:text-right",
         className,
       )}
       {...props}
