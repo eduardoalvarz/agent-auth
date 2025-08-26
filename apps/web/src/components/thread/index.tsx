@@ -1,3 +1,4 @@
+"use client";
 import { v4 as uuidv4 } from "uuid";
 import { ReactNode, useEffect, useRef, useState, FormEvent } from "react";
 import { motion } from "framer-motion";

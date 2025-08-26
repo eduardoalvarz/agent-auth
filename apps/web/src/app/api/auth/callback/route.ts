@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 // This API route now only redirects to the client-side callback page.
 // We perform the PKCE code exchange in the browser at /auth/callback
 // so that the code_verifier stored by the Supabase client is available.
