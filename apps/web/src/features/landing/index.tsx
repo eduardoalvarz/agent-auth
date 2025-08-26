@@ -15,7 +15,7 @@ export default function Landing() {
         className="text-4xl font-bold tracking-tight sm:text-5xl"
       >
         <span className="font-normal italic">¡Bienvenido a </span>
-        <span className="font-bold not-italic">about:demo</span>
+        <span className="font-bold not-italic">about:</span><span className="text-muted-foreground">chat</span>
         <span className="font-normal italic">!</span>
       </motion.h1>
 

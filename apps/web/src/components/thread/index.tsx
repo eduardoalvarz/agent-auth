@@ -1,9 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode, useEffect, useRef, useState, FormEvent } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/Stream";
-import { useState, FormEvent } from "react";
 import { Button } from "../ui/button";
 import { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { AssistantMessage, AssistantMessageLoading } from "./messages/ai";
@@ -22,6 +21,8 @@ import {
   SquarePen,
   XIcon,
   Plus,
+  Mic,
+  Square,
   Wrench,
   Database,
 } from "lucide-react";
@@ -30,6 +31,7 @@ import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import ThreadHistory from "./history";
 import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { supabase } from "@/lib/auth/supabase-client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useFileUpload } from "@/hooks/use-file-upload";
@@ -95,7 +97,7 @@ export function Thread() {
     "hideToolCalls",
     parseAsBoolean.withDefault(false),
   );
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState<string>("");
   const {
     contentBlocks,
     setContentBlocks,
@@ -114,6 +116,273 @@ export function Thread() {
 
   const lastError = useRef<string | undefined>(undefined);
 
+  // --- Voice recording / transcription state ---
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const [elapsedMs, setElapsedMs] = useState(0);
+  const timerIntervalRef = useRef<number | null>(null);
+  const autoStopTimeoutRef = useRef<number | null>(null);
+  const mimeTypeRef = useRef<string>("audio/webm");
+  const canceledRef = useRef<boolean>(false);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const caretStartRef = useRef<number | null>(null);
+  const caretEndRef = useRef<number | null>(null);
+  const preRecordInputRef = useRef<string>("");
+  const pendingCaretRef = useRef<number | null>(null);
+
+  const formatElapsed = (ms: number) => {
+    const s = Math.floor(ms / 1000);
+    const mm = Math.floor(s / 60)
+      .toString()
+      .padStart(2, "0");
+    const ss = (s % 60).toString().padStart(2, "0");
+    return `${mm}:${ss}`;
+  };
+
+  const stopTimers = () => {
+    if (timerIntervalRef.current) {
+      window.clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+    if (autoStopTimeoutRef.current) {
+      window.clearTimeout(autoStopTimeoutRef.current);
+      autoStopTimeoutRef.current = null;
+    }
+  };
+
+  const cleanupAudio = () => {
+    // Simplified cleanup (no waveform/audio graph)
+    mediaRecorderRef.current = null;
+  };
+
+  const transcribeAudio = async (blob: Blob) => {
+    try {
+      setIsTranscribing(true);
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      let jwt = session?.access_token;
+
+      const form = new FormData();
+      const ext = mimeTypeRef.current.includes("mp4") ? "mp4" : "webm";
+      form.append("audio", blob, `speech.${ext}`);
+
+      const doFetch = async () =>
+        fetch("/api/transcribe", {
+          method: "POST",
+          headers: jwt
+            ? {
+                Authorization: `Bearer ${jwt}`,
+                "x-supabase-access-token": jwt,
+              }
+            : undefined,
+          body: form,
+        });
+
+      let res = await doFetch();
+      if (res.status === 401) {
+        // retry once after refresh to follow our auth strategy
+        await supabase.auth.refreshSession();
+        const refreshed = await supabase.auth.getSession();
+        jwt = refreshed.data.session?.access_token;
+        res = await doFetch();
+      }
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({} as any));
+        throw new Error(err?.error || `Error ${res.status}`);
+      }
+      const data = (await res.json()) as { text?: string };
+      const text = (data?.text || "").trim();
+      if (text) {
+        const base = preRecordInputRef.current ?? input;
+        let start = caretStartRef.current ?? base.length;
+        let end = caretEndRef.current ?? start;
+        if (start > base.length) start = base.length;
+        if (end > base.length) end = base.length;
+        const before = base.slice(0, start);
+        const after = base.slice(end);
+        const needsSpace = before.length > 0 && !/\s$/.test(before) && text.length > 0;
+        const insertion = needsSpace ? ` ${text}` : text;
+        const newVal = `${before}${insertion}${after}`;
+        pendingCaretRef.current = (before + insertion).length;
+        setInput(newVal);
+        // reset saved selection to avoid stale positions on next recording
+        caretStartRef.current = null;
+        caretEndRef.current = null;
+        preRecordInputRef.current = newVal;
+      } else {
+        toast.info("Sin texto detectable", {
+          description: "No se detectó voz en el audio.",
+        });
+      }
+    } catch (e: any) {
+      toast.error("Transcripción fallida", {
+        description: e?.message || "No fue posible transcribir el audio.",
+        richColors: true,
+        closeButton: true,
+      });
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  const startRecording = async () => {
+    try {
+      if (isRecording || isTranscribing) return;
+      if (!navigator?.mediaDevices?.getUserMedia) {
+        toast.error("Micrófono no disponible", {
+          description: "Tu navegador no permite acceso al micrófono.",
+        });
+        return;
+      }
+
+      // Save caret position and current input so we can insert the transcription there
+      preRecordInputRef.current = input;
+      const el = inputRef.current;
+      if (el) {
+        try {
+          caretStartRef.current = el.selectionStart ?? input.length;
+          caretEndRef.current = el.selectionEnd ?? caretStartRef.current;
+        } catch (err) {
+          console.debug("Failed to read caret position", err);
+          caretStartRef.current = input.length;
+          caretEndRef.current = caretStartRef.current;
+        }
+      } else {
+        caretStartRef.current = input.length;
+        caretEndRef.current = caretStartRef.current;
+      }
+
+      canceledRef.current = false;
+      setElapsedMs(0);
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      const mimeCandidates = [
+        "audio/webm;codecs=opus",
+        "audio/webm",
+        "audio/mp4;codecs=mp4a.40.2",
+        "audio/mp4",
+      ];
+      let chosen: string | undefined;
+      for (const t of mimeCandidates) {
+        try {
+          if ((MediaRecorder as any).isTypeSupported?.(t)) {
+            chosen = t;
+            break;
+          }
+        } catch (err) {
+          console.debug("MediaRecorder.isTypeSupported check failed", err);
+        }
+      }
+      if (chosen) mimeTypeRef.current = chosen;
+
+      const recorder = new MediaRecorder(
+        stream,
+        chosen ? { mimeType: chosen } : undefined,
+      );
+      mediaRecorderRef.current = recorder;
+      chunksRef.current = [];
+
+      recorder.ondataavailable = (e: any) => {
+        if (e.data && e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+      };
+
+      recorder.onstop = async () => {
+        try {
+          stream.getTracks().forEach((t) => t.stop());
+        } catch (err) {
+          console.debug("Error stopping audio tracks", err);
+        }
+        cleanupAudio();
+        // If the recording duration is effectively 0s or there are no chunks, treat as too short and do not transcribe
+        try {
+          const secs = Math.floor((Date.now() - startedAt) / 1000);
+          if (secs <= 0 || !chunksRef.current.length) {
+            chunksRef.current = [];
+            if (!canceledRef.current) {
+              toast.info("Audio demasiado corto", {
+                description: "La grabación fue muy corta (00:00). Intenta de nuevo.",
+              });
+            }
+            if (canceledRef.current) canceledRef.current = false;
+            // We set isTranscribing(true) on stop; revert it here since we won't transcribe
+            setIsTranscribing(false);
+            return;
+          }
+        } catch (err) {
+          console.debug("short-audio check failed", err);
+        }
+        const blob = new Blob(chunksRef.current, { type: mimeTypeRef.current });
+        chunksRef.current = [];
+        if (canceledRef.current) {
+          canceledRef.current = false;
+          // If canceled after pressing stop, ensure we revert transcribing state
+          setIsTranscribing(false);
+          return;
+        }
+        await transcribeAudio(blob);
+      };
+
+      const startedAt = Date.now();
+      if (timerIntervalRef.current) window.clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = window.setInterval(() => {
+        setElapsedMs(Date.now() - startedAt);
+      }, 250);
+
+      if (autoStopTimeoutRef.current) window.clearTimeout(autoStopTimeoutRef.current);
+      autoStopTimeoutRef.current = window.setTimeout(() => {
+        stopRecording();
+      }, 60000);
+
+      setIsRecording(true);
+      recorder.start();
+    } catch (e: any) {
+      console.error(e);
+      toast.error("No se pudo iniciar la grabación", {
+        description: e?.message || "Verifica permisos del micrófono.",
+      });
+      setIsRecording(false);
+      stopTimers();
+      try {
+        const rec = mediaRecorderRef.current;
+        if (rec && rec.state !== "inactive") rec.stop();
+      } catch (err) {
+        console.debug("Recorder stop after start error", err);
+      }
+      cleanupAudio();
+    }
+  };
+
+  const stopRecording = () => {
+    try {
+      // Prevent textarea from flashing back before transcription starts
+      setIsTranscribing(true);
+      setIsRecording(false);
+      stopTimers();
+      const rec = mediaRecorderRef.current;
+      if (rec && rec.state !== "inactive") rec.stop();
+    } catch (err) {
+      console.debug("stopRecording error", err);
+    }
+  };
+
+  const cancelRecording = () => {
+    try {
+      canceledRef.current = true;
+      setIsRecording(false);
+      stopTimers();
+      const rec = mediaRecorderRef.current;
+      if (rec && rec.state !== "inactive") rec.stop();
+    } catch (err) {
+      console.debug("cancelRecording error", err);
+    }
+  };
 
   const setThreadId = (id: string | null) => {
     _setThreadId(id);
@@ -146,8 +415,8 @@ export function Thread() {
         richColors: true,
         closeButton: true,
       });
-    } catch {
-      // no-op
+    } catch (err) {
+      console.debug("toast error handling failed", err);
     }
   }, [stream.error]);
 
@@ -164,6 +433,35 @@ export function Thread() {
 
     prevMessageLength.current = messages.length;
   }, [messages]);
+
+  useEffect(() => {
+    return () => {
+      try {
+        stopTimers();
+        const rec = mediaRecorderRef.current;
+        if (rec && rec.state !== "inactive") rec.stop();
+      } catch (err) {
+        console.debug("cleanup on unmount failed", err);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    // After recording/transcribing ends, restore focus and caret to the insertion point
+    if (!isRecording && !isTranscribing && pendingCaretRef.current != null) {
+      const el = inputRef.current;
+      if (el) {
+        const pos = Math.min(pendingCaretRef.current, el.value.length);
+        try {
+          el.focus();
+          el.setSelectionRange(pos, pos);
+        } catch (err) {
+          console.debug("restore caret failed", err);
+        }
+      }
+      pendingCaretRef.current = null;
+    }
+  }, [isRecording, isTranscribing]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -298,12 +596,7 @@ export function Thread() {
       .map((id) => labelMap[id] || id)
       .join(" · ");
   };
-  const chipDotColor = (id: string) => {
-    if (id.startsWith("coop_")) return "bg-emerald-500";
-    if (id.startsWith("demo_")) return "bg-zinc-300";
-    if (id.toLowerCase().startsWith("pink")) return "bg-rose-500";
-    return "bg-gray-400";
-  };
+  // removed unused chipDotColor
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -626,7 +919,9 @@ export function Thread() {
                           <div className="mx-1 h-5 w-px bg-white" />
                           {/* Right: input area (fills remaining space) */}
                           <div className="flex items-center gap-2 min-w-0 flex-1">
+                          {!(isRecording || isTranscribing) && (
                           <textarea
+                          ref={inputRef}
                           value={input}
                           onChange={(e) => setInput(e.target.value)}
                           onPaste={handlePaste}
@@ -647,7 +942,8 @@ export function Thread() {
                           rows={1}
                           className="field-sizing-content flex-1 min-h-[40px] resize-none border-none bg-transparent px-2 py-2 text-sm leading-5 text-white placeholder:text-white/60 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none max-h-36 overflow-y-auto caret-white selection:bg-white/10 selection:text-inherit"
                         />
-                        <div className="ml-auto flex items-center gap-1.5">
+                          )}
+                          <div className="ml-auto flex items-center gap-1.5">
                           {contentBlocks.length === 0 && (
                             <TooltipIconButton
                               tooltip="Adjuntar archivos"
@@ -659,6 +955,60 @@ export function Thread() {
                               }
                             >
                               <Plus className="size-5 text-white" />
+                            </TooltipIconButton>
+                          )}
+                          {/* Voice bar */}
+                          {(isRecording || isTranscribing) ? (
+                            <div className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-2 py-1 shrink-0">
+                              <button
+                                type="button"
+                                onClick={cancelRecording}
+                                disabled={isTranscribing}
+                                title={isTranscribing ? "Procesando..." : "Cancelar"}
+                                aria-label="Cancelar grabación"
+                                className="inline-flex h-7 w-7 items-center justify-center rounded-full hover:bg-white/10 disabled:opacity-50"
+                              >
+                                <XIcon className="size-4 text-white/80" />
+                              </button>
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className="inline-block h-2 w-2 rounded-full bg-red-500 animate-pulse"
+                                  aria-hidden="true"
+                                />
+                                <span className="text-[11px] text-white/80 tabular-nums min-w-[42px] text-right">
+                                  {formatElapsed(elapsedMs)}
+                                </span>
+                              </div>
+                              {isTranscribing ? (
+                                <div
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-zinc-900"
+                                  title="Transcribiendo..."
+                                  aria-label="Transcribiendo"
+                                >
+                                  <LoaderCircle className="size-4 animate-spin" />
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={stopRecording}
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 focus-visible:ring-2 focus-visible:ring-red-300"
+                                  title="Detener"
+                                  aria-label="Detener grabación"
+                                >
+                                  <Square className="size-4" />
+                                </button>
+                              )}
+                            </div>
+                          ) : (
+                            <TooltipIconButton
+                              tooltip="Hablar"
+                              variant="ghost"
+                              size="icon"
+                              className="p-1.5 rounded-full hover:bg-white/10 text-white focus-visible:ring-white/20"
+                              onClick={startRecording}
+                              aria-label="Hablar"
+                            >
+                              <Mic className="size-5 text-white" />
                             </TooltipIconButton>
                           )}
                           <input
