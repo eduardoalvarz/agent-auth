@@ -208,7 +208,7 @@ export function AssistantMessage({
             {contentString.length > 0 && (
               <div
                 className={cn(
-                  "mr-auto flex items-center gap-2 transition-opacity",
+                  "mr-auto -mt-2 flex items-center gap-2 transition-opacity",
                   "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100",
                 )}
               >

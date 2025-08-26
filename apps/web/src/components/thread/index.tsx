@@ -454,7 +454,7 @@ export function Thread() {
                 !chatStarted && "mt-[25vh] flex flex-col items-stretch",
                 chatStarted && "grid grid-rows-[1fr_auto]",
               )}
-              contentClassName="pt-8 pb-8 sm:pb-12 lg:pb-16 max-w-3xl mx-auto flex flex-col gap-4 w-full min-w-0"
+              contentClassName="pt-8 pb-8 sm:pb-12 lg:pb-16 max-w-3xl mx-auto flex flex-col gap-3 w-full min-w-0"
               content={
                 <>
                   {messages
