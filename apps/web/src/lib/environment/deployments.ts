@@ -7,13 +7,15 @@ import { Deployment } from "@/app/types/deployment";
 export function getLocalDeployments(): Deployment[] {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://bridge-ce2d35d633355c32aebc607a19c42e76.us.langgraph.app";
 
+  const defaultGraphId = process.env.NEXT_PUBLIC_ASSISTANT_ID || "aboutchat";
+
   return [
     {
-      id: "aboutchat",
+      id: defaultGraphId,
       deploymentUrl: apiUrl,
       tenantId: "langgraph",
-      name: "aboutchat",
-      defaultGraphId: "aboutchat", // Must match your langgraph.json
+      name: defaultGraphId,
+      defaultGraphId, // Must match your langgraph.json or env
       isDefault: true,
     },
   ];
@@ -47,6 +49,27 @@ export function getDeployments(): Deployment[] {
     return getLocalDeployments();
   }
 
-  // For production, you'd need to handle async fetchDeployments differently
-  throw new Error("Production deployments fetching not implemented yet");
+  // Production: avoid throwing. Use env configuration if available; otherwise, return empty.
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const defaultGraphId = process.env.NEXT_PUBLIC_ASSISTANT_ID || "aboutchat";
+
+  if (!apiUrl) {
+    if (typeof window !== "undefined") {
+      console.warn(
+        "NEXT_PUBLIC_API_URL is not set; returning empty deployments in production.",
+      );
+    }
+    return [];
+  }
+
+  return [
+    {
+      id: defaultGraphId,
+      deploymentUrl: apiUrl,
+      tenantId: "langgraph",
+      name: defaultGraphId,
+      defaultGraphId,
+      isDefault: true,
+    },
+  ];
 }
