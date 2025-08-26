@@ -1,0 +1,11 @@
+{
+    "node_version": "20",
+    "dependencies": [
+      "."
+    ],
+    "graphs": {
+      "aboutchat": "./apps/agents/src/graph.ts:graph"
+    },
+    "env": ".env"
+  }
+  

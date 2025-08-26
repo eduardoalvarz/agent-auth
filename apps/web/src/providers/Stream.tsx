@@ -174,8 +174,8 @@ const StreamCore: React.FC<{
 };
 
 // Default values for the form
-const DEFAULT_API_URL = "http://localhost:2024";
-const DEFAULT_ASSISTANT_ID = "agent";
+const DEFAULT_API_URL = "https://bridge-ce2d35d633355c32aebc607a19c42e76.us.langgraph.app";
+const DEFAULT_ASSISTANT_ID = "aboutchat";
 
 export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   children,
