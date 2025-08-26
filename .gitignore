@@ -12,7 +12,8 @@
 /coverage
 
 # next.js
-/.next/
+# Ignore Next.js outputs anywhere in the repo (e.g., apps/web/.next)
+**/.next/
 /out/
 
 # production
@@ -30,8 +31,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
-.env
+# Ignore environment files anywhere in the repo
+**/.env
+**/.env.*
 
 # vercel
 .vercel

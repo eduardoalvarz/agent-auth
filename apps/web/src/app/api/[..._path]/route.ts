@@ -5,9 +5,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "edge";
 
-// Fallback API key for LangSmith/LangGraph if none provided by client or env
-const DEFAULT_API_KEY = "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";
-
 function getCorsHeaders(origin?: string | null) {
   return {
     "Access-Control-Allow-Origin": origin || "*",
@@ -32,8 +29,7 @@ function forwardHeaders(req: NextRequest): Headers {
   const auth = req.headers.get("authorization");
   const sb = req.headers.get("x-supabase-access-token");
   const ct = req.headers.get("content-type");
-  const xApiKey =
-    req.headers.get("x-api-key") ?? process.env.LANGSMITH_API_KEY ?? DEFAULT_API_KEY;
+  const xApiKey = req.headers.get("x-api-key") ?? process.env.LANGSMITH_API_KEY;
   if (auth) out.set("authorization", auth);
   if (sb) out.set("x-supabase-access-token", sb);
   if (ct) out.set("content-type", ct);

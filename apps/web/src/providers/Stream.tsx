@@ -140,16 +140,37 @@ const StreamCore: React.FC<{
   setThreads,
   children,
 }) => {
+  // Ensure apiUrl is absolute (SDK uses new URL(base + path))
+  let normalizedApiUrl = apiUrl;
+  try {
+    if (normalizedApiUrl && normalizedApiUrl.startsWith("/")) {
+      if (typeof window !== "undefined") {
+        normalizedApiUrl = `${window.location.origin}${normalizedApiUrl}`;
+      } else if (process.env.NEXT_PUBLIC_SITE_URL) {
+        normalizedApiUrl = `${process.env.NEXT_PUBLIC_SITE_URL}${normalizedApiUrl}`;
+      } else if (process.env.VERCEL_URL) {
+        normalizedApiUrl = `https://${process.env.VERCEL_URL}${normalizedApiUrl}`;
+      } else {
+        normalizedApiUrl = `http://localhost:3000${normalizedApiUrl}`;
+      }
+    }
+  } catch (e) {
+    console.error("[StreamCore] Failed to normalize apiUrl:", e);
+  }
+
+  // Build headers
+  const headers: Record<string, string> = {};
+  if (freshJwt) {
+    headers["Authorization"] = `Bearer ${freshJwt}`;
+    headers["x-supabase-access-token"] = freshJwt;
+  }
+  // Never inject X-Api-Key from the browser; secrets must be added server-side via the proxy.
+
   const streamValue = useTypedStream({
-    apiUrl,
+    apiUrl: normalizedApiUrl,
     assistantId,
     threadId,
-    defaultHeaders: freshJwt
-      ? {
-          Authorization: `Bearer ${freshJwt}`,
-          "x-supabase-access-token": freshJwt,
-        }
-      : undefined,
+    defaultHeaders: Object.keys(headers).length ? headers : undefined,
     onCustomEvent: (event, options) => {
       if (isUIMessage(event) || isRemoveUIMessage(event)) {
         options.mutate((prev) => {
@@ -176,6 +197,7 @@ const StreamCore: React.FC<{
 // Default values for the form
 const DEFAULT_API_URL = "https://bridge-ce2d35d633355c32aebc607a19c42e76.us.langgraph.app";
 const DEFAULT_ASSISTANT_ID = "coop";
+// Do not store API keys in client code. Keys must be provided server-side.
 
 export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   children,
