@@ -175,7 +175,7 @@ const StreamCore: React.FC<{
 
 // Default values for the form
 const DEFAULT_API_URL = "https://bridge-ce2d35d633355c32aebc607a19c42e76.us.langgraph.app";
-const DEFAULT_ASSISTANT_ID = "aboutchat";
+const DEFAULT_ASSISTANT_ID = "coop";
 
 export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -184,6 +184,7 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   const envApiUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;
   const envAssistantId: string | undefined =
     process.env.NEXT_PUBLIC_ASSISTANT_ID;
+  const isProd = process.env.NODE_ENV === "production";
 
   // Use URL params with env var fallbacks
   const [apiUrl, setApiUrl] = useQueryState("apiUrl", {
@@ -193,98 +194,116 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
     defaultValue: envAssistantId || "",
   });
 
-  // Determine final values to use, prioritizing URL params then env vars
-  const finalApiUrl = apiUrl || envApiUrl;
-  const finalAssistantId = assistantId || envAssistantId;
+  // Determine final values to use
+  // - In production: do NOT rely on URL params; use env vars or safe defaults.
+  // - In development: allow URL params to override env vars.
+  const finalApiUrl = isProd
+    ? (envApiUrl || DEFAULT_API_URL)
+    : (apiUrl || envApiUrl);
+  const finalAssistantId = isProd
+    ? (envAssistantId || DEFAULT_ASSISTANT_ID)
+    : (assistantId || envAssistantId);
 
-  // Show the form if we: don't have an API URL, or don't have an assistant ID
+  // If configuration is missing:
+  // - In development: show the setup form for convenience.
+  // - In production: do NOT show the setup form; show a minimal friendly message.
   if (!finalApiUrl || !finalAssistantId) {
-    return (
-      <div className="flex min-h-screen w-full items-center justify-center p-4">
-        <div className="animate-in fade-in-0 zoom-in-95 bg-background flex max-w-3xl flex-col rounded-lg border shadow-lg">
-          <div className="mt-14 flex flex-col gap-2 border-b p-6">
-            <div className="flex flex-col items-start gap-2">
-              <LangGraphLogoSVG className="h-7" />
-              <h1 className="text-xl font-semibold tracking-tight">
-                Agent Chat
-              </h1>
+    if (!isProd) {
+      return (
+        <div className="flex min-h-screen w-full items-center justify-center p-4">
+          <div className="animate-in fade-in-0 zoom-in-95 bg-background flex max-w-3xl flex-col rounded-lg border shadow-lg">
+            <div className="mt-14 flex flex-col gap-2 border-b p-6">
+              <div className="flex flex-col items-start gap-2">
+                <LangGraphLogoSVG className="h-7" />
+                <h1 className="text-xl font-semibold tracking-tight">
+                  Agent Chat
+                </h1>
+              </div>
+              <p className="text-muted-foreground">
+                Welcome to Agent Chat! Before you get started, you need to enter
+                the URL of the deployment and the assistant / graph ID.
+              </p>
             </div>
-            <p className="text-muted-foreground">
-              Welcome to Agent Chat! Before you get started, you need to enter
-              the URL of the deployment and the assistant / graph ID.
-            </p>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+
+                const form = e.target as HTMLFormElement;
+                const formData = new FormData(form);
+                const apiUrl = formData.get("apiUrl") as string;
+                const assistantId = formData.get("assistantId") as string;
+
+                setApiUrl(apiUrl);
+                setAssistantId(assistantId);
+
+                form.reset();
+              }}
+              className="bg-muted/50 flex flex-col gap-6 p-6"
+            >
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="apiUrl">
+                  Deployment URL<span className="text-rose-500">*</span>
+                </Label>
+                <p className="text-muted-foreground text-sm">
+                  This is the URL of your LangGraph deployment. Can be a local, or
+                  production deployment.
+                </p>
+                <Input
+                  id="apiUrl"
+                  name="apiUrl"
+                  className="bg-background"
+                  defaultValue={apiUrl || DEFAULT_API_URL}
+                  required
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="assistantId">
+                  Assistant / Graph ID<span className="text-rose-500">*</span>
+                </Label>
+                <p className="text-muted-foreground text-sm">
+                  This is the ID of the graph (can be the graph name), or
+                  assistant to fetch threads from, and invoke when actions are
+                  taken.
+                </p>
+                <Input
+                  id="assistantId"
+                  name="assistantId"
+                  className="bg-background"
+                  defaultValue={assistantId || DEFAULT_ASSISTANT_ID}
+                  required
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="apiKey">LangSmith API Key</Label>
+                <p className="text-muted-foreground text-sm">
+                  This is <strong>NOT</strong> required if using a local LangGraph
+                  server. This value is stored in your browser's local storage and
+                  is only used to authenticate requests sent to your LangGraph
+                  server.
+                </p>
+              </div>
+
+              <div className="mt-2 flex justify-end">
+                <Button
+                  type="submit"
+                  size="lg"
+                >
+                  Continue
+                  <ArrowRight className="size-5" />
+                </Button>
+              </div>
+            </form>
           </div>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-
-              const form = e.target as HTMLFormElement;
-              const formData = new FormData(form);
-              const apiUrl = formData.get("apiUrl") as string;
-              const assistantId = formData.get("assistantId") as string;
-
-              setApiUrl(apiUrl);
-              setAssistantId(assistantId);
-
-              form.reset();
-            }}
-            className="bg-muted/50 flex flex-col gap-6 p-6"
-          >
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="apiUrl">
-                Deployment URL<span className="text-rose-500">*</span>
-              </Label>
-              <p className="text-muted-foreground text-sm">
-                This is the URL of your LangGraph deployment. Can be a local, or
-                production deployment.
-              </p>
-              <Input
-                id="apiUrl"
-                name="apiUrl"
-                className="bg-background"
-                defaultValue={apiUrl || DEFAULT_API_URL}
-                required
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="assistantId">
-                Assistant / Graph ID<span className="text-rose-500">*</span>
-              </Label>
-              <p className="text-muted-foreground text-sm">
-                This is the ID of the graph (can be the graph name), or
-                assistant to fetch threads from, and invoke when actions are
-                taken.
-              </p>
-              <Input
-                id="assistantId"
-                name="assistantId"
-                className="bg-background"
-                defaultValue={assistantId || DEFAULT_ASSISTANT_ID}
-                required
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="apiKey">LangSmith API Key</Label>
-              <p className="text-muted-foreground text-sm">
-                This is <strong>NOT</strong> required if using a local LangGraph
-                server. This value is stored in your browser's local storage and
-                is only used to authenticate requests sent to your LangGraph
-                server.
-              </p>
-            </div>
-
-            <div className="mt-2 flex justify-end">
-              <Button
-                type="submit"
-                size="lg"
-              >
-                Continue
-                <ArrowRight className="size-5" />
-              </Button>
-            </div>
-          </form>
+        </div>
+      );
+    }
+    // Production fallback (should rarely trigger due to defaults above)
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center">
+        <div className="text-center text-sm text-muted-foreground">
+          Chat no disponible: falta configuración del servidor.
         </div>
       </div>
     );

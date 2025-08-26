@@ -36,6 +36,12 @@ function getThreadSearchMetadata(
 }
 
 export function ThreadProvider({ children }: { children: ReactNode }) {
+  // Use same defaults as StreamProvider to keep behavior consistent
+  const DEFAULT_API_URL =
+  "https://bridge-ce2d35d633355c32aebc607a19c42e76.us.langgraph.app";
+  const DEFAULT_ASSISTANT_ID = "coop";
+  const isProd = process.env.NODE_ENV === "production";
+
   // Get environment variables
   const envApiUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;
   const envAssistantId: string | undefined =
@@ -49,9 +55,15 @@ export function ThreadProvider({ children }: { children: ReactNode }) {
     defaultValue: envAssistantId || "",
   });
 
-  // Determine final values to use, prioritizing URL params then env vars
-  const finalApiUrl = apiUrl || envApiUrl;
-  const finalAssistantId = assistantId || envAssistantId;
+  // Determine final values to use
+  // - In production: do NOT rely on URL params; use env vars or safe defaults.
+  // - In development: allow URL params to override env vars.
+  const finalApiUrl = isProd
+    ? (envApiUrl || DEFAULT_API_URL)
+    : (apiUrl || envApiUrl);
+  const finalAssistantId = isProd
+    ? (envAssistantId || DEFAULT_ASSISTANT_ID)
+    : (assistantId || envAssistantId);
 
   const [threads, setThreads] = useState<Thread[]>([]);
   const [threadsLoading, setThreadsLoading] = useState(false);
