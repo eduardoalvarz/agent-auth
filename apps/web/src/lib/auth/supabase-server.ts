@@ -22,5 +22,5 @@ export function getSupabaseServerClient() {
   });
 }
 
-// Export a singleton instance
-export const supabaseServer = getSupabaseServerClient();
+// Note: Avoid exporting a module-level singleton to prevent build-time failures
+// when environment variables are not configured during Next.js build.

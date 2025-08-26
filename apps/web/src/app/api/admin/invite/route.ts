@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/auth/supabase-server";
+import { getSupabaseServerClient } from "@/lib/auth/supabase-server";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,6 +37,9 @@ export async function POST(request: NextRequest) {
 
     const redirectTo = new URL("/auth/set-password", request.nextUrl.origin).toString();
 
+    // Create Supabase server client on-demand to avoid build-time env checks
+    const supabaseServer = getSupabaseServerClient();
+
     const { data, error } = await supabaseServer.auth.admin.inviteUserByEmail(
       email,
       { redirectTo },
@@ -55,3 +61,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
