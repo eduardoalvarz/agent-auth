@@ -51,18 +51,21 @@ export function MarkdownProse({ content }: { content: string }) {
           ),
           hr: ({ node, ...props }: any) => <hr className="my-6 border-t" {...props} />,
           table: ({ node, ...props }: any) => (
-            <div className="my-4 overflow-x-auto [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent">
-              <table className="w-full min-w-max border-collapse text-sm" {...props} />
+            <div className="my-4 overflow-x-auto [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-foreground/60 [&::-webkit-scrollbar-track]:bg-transparent">
+              <table className="w-full border-collapse text-sm tabular-nums" {...props} />
             </div>
           ),
           thead: ({ node, ...props }: any) => (
-            <thead className="bg-muted/50 text-foreground" {...props} />
+            <thead className="text-foreground border-b border-border" {...props} />
+          ),
+          tr: ({ node, ...props }: any) => (
+            <tr className="m-0 border-b border-border p-0 last:border-b-0" {...props} />
           ),
           th: ({ node, ...props }: any) => (
-            <th className="border-b px-3 py-2 text-left font-medium" {...props} />
+            <th className="px-4 lg:px-6 py-2.5 text-left font-bold text-foreground text-sm whitespace-normal break-words align-top leading-7 first:pl-0 last:pr-0 min-w-[7rem] sm:min-w-[8rem] lg:min-w-[9rem] [&[align=center]]:text-center [&[align=right]]:text-right" {...props} />
           ),
           td: ({ node, ...props }: any) => (
-            <td className="border-b px-3 py-2 align-top text-left" {...props} />
+            <td className="px-4 lg:px-6 py-2.5 text-left whitespace-normal break-words align-top leading-7 first:pl-0 last:pr-0 min-w-[7rem] sm:min-w-[8rem] lg:min-w-[9rem] [&[align=center]]:text-center [&[align=right]]:text-right" {...props} />
           ),
           code({ node, inline, className, children, ...props }: any) {
             const match = /language-(\w+)/.exec(className || "");

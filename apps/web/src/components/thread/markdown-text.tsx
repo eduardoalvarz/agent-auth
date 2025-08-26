@@ -181,7 +181,7 @@ const ScrollableTable: FC<
       {overflowing && (
         <div
           ref={trackRef}
-          className="mt-1 h-2 w-full select-none rounded-none overflow-hidden bg-black/10"
+          className="mt-1 h-2 w-full select-none rounded-none overflow-hidden bg-border"
           onPointerDown={(e) => {
             draggingRef.current = true;
             setScrollByPointer(e.clientX);
@@ -205,7 +205,7 @@ const ScrollableTable: FC<
             style={{ width: '100%' }}
           >
             <div
-              className="absolute inset-y-0 rounded-none bg-black/80"
+              className="absolute inset-y-0 rounded-none bg-foreground/60"
               style={atEnd ? { right: 0, width: `${thumbWidth}px` } : { left: `${thumbLeft}px`, width: `${thumbWidth}px` }}
             />
           </div>
@@ -308,23 +308,30 @@ export const defaultComponents: any = {
   ),
   table: ({ className, ...props }: { className?: string }) => (
     <ScrollableTable
-      className={className}
+      className={cn("w-full text-sm tabular-nums", className)}
+      {...props}
+    />
+  ),
+  thead: ({ className, ...props }: { className?: string }) => (
+    <thead
+      className={cn("text-foreground border-b border-border", className)}
       {...props}
     />
   ),
   th: ({ className, ...props }: { className?: string }) => (
     <th
       className={cn(
-        "bg-muted px-4 py-2 text-left font-bold whitespace-nowrap first:rounded-tl-lg last:rounded-tr-lg first:pl-0 last:pr-0 [&[align=center]]:text-center [&[align=right]]:text-right",
+        "px-6 md:px-8 lg:px-10 xl:px-12 py-3.5 text-left font-bold tracking-wide text-foreground text-sm whitespace-normal break-normal align-middle leading-9 first:pl-0 last:pr-0 min-w-[10rem] sm:min-w-[12rem] lg:min-w-[14rem] xl:min-w-[16rem] [&[align=center]]:text-center [&[align=right]]:text-right",
         className,
       )}
+      scope="col"
       {...props}
     />
   ),
   td: ({ className, ...props }: { className?: string }) => (
     <td
       className={cn(
-        "border-b border-l px-4 py-2 text-left whitespace-nowrap first:pl-0 last:pr-0 first:border-l-0 last:border-r [&[align=center]]:text-center [&[align=right]]:text-right",
+        "px-6 md:px-8 lg:px-10 xl:px-12 py-3.5 text-left whitespace-normal break-normal align-middle leading-9 first:pl-0 last:pr-0 min-w-[10rem] sm:min-w-[12rem] lg:min-w-[14rem] xl:min-w-[16rem] [&[align=center]]:text-center [&[align=right]]:text-right",
         className,
       )}
       {...props}
@@ -333,7 +340,7 @@ export const defaultComponents: any = {
   tr: ({ className, ...props }: { className?: string }) => (
     <tr
       className={cn(
-        "m-0 border-b p-0 first:border-t [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg",
+        "m-0 border-b border-border p-0 last:border-b-0",
         className,
       )}
       {...props}

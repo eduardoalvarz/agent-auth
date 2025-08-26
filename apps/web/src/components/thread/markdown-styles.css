@@ -31,16 +31,10 @@
   min-width: 100%; /* but at least fill the container */
 }
 
+/* Minimalist reset: let React component classes set spacing and borders */
 .markdown-content th,
 .markdown-content td {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-
-.markdown-content th {
-  background-color: #f2f2f2;
-}
-
-.markdown-content tr:nth-child(even) {
-  background-color: #f9f9f9;
+  border: 0;
+  padding: 0; /* actual padding is set via component classes */
+  background: transparent;
 }
