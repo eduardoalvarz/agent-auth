@@ -25,7 +25,7 @@ export function ToolCalls({
             className="overflow-hidden rounded-lg border border-gray-200"
           >
             <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
-              <h3 className="font-medium text-gray-900">
+              <h3 className="font-medium text-gray-900 text-sm">
                 {tc.name}
                 {tc.id && (
                   <code className="ml-2 rounded bg-gray-100 px-2 py-1 text-sm">
@@ -99,14 +99,14 @@ export function ToolResult({ message }: { message: ToolMessage }) {
         <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             {message.name ? (
-              <h3 className="font-medium text-gray-900">
+              <h3 className="font-medium text-gray-900 text-sm">
                 Resultado de la herramienta:{" "}
                 <code className="rounded bg-gray-100 px-2 py-1">
                   {message.name}
                 </code>
               </h3>
             ) : (
-              <h3 className="font-medium text-gray-900">Resultado de la herramienta</h3>
+              <h3 className="font-medium text-gray-900 text-sm">Resultado de la herramienta</h3>
             )}
             {message.tool_call_id && (
               <code className="ml-2 rounded bg-gray-100 px-2 py-1 text-sm">

@@ -141,6 +141,21 @@ export function AssistantMessage({
     return null;
   }
 
+  // If this is an AI message with no text content and tool calls are hidden,
+  // avoid rendering an empty row that creates vertical gaps.
+  const hasTextContent = contentString.length > 0;
+  const hasAnyToolCalls =
+    (hasToolCalls && (!!message.tool_calls?.length || toolCallsHaveContents)) ||
+    hasAnthropicToolCalls;
+  if (
+    !isToolResult &&
+    !hasTextContent &&
+    (hideToolCalls || !hasAnyToolCalls) &&
+    !threadInterrupt?.value
+  ) {
+    return null;
+  }
+
   return (
     <div className="group mr-auto flex items-start gap-2">
       <div className="flex flex-col gap-2">
@@ -190,25 +205,27 @@ export function AssistantMessage({
               isLastMessage={isLastMessage}
               hasNoAIOrToolMessages={hasNoAIOrToolMessages}
             />
-            <div
-              className={cn(
-                "mr-auto flex items-center gap-2 transition-opacity",
-                "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100",
-              )}
-            >
-              <BranchSwitcher
-                branch={meta?.branch}
-                branchOptions={meta?.branchOptions}
-                onSelect={(branch) => thread.setBranch(branch)}
-                isLoading={isLoading}
-              />
-              <CommandBar
-                content={contentString}
-                isLoading={isLoading}
-                isAiMessage={true}
-                handleRegenerate={() => handleRegenerate(parentCheckpoint)}
-              />
-            </div>
+            {contentString.length > 0 && (
+              <div
+                className={cn(
+                  "mr-auto flex items-center gap-2 transition-opacity",
+                  "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100",
+                )}
+              >
+                <BranchSwitcher
+                  branch={meta?.branch}
+                  branchOptions={meta?.branchOptions}
+                  onSelect={(branch) => thread.setBranch(branch)}
+                  isLoading={isLoading}
+                />
+                <CommandBar
+                  content={contentString}
+                  isLoading={isLoading}
+                  isAiMessage={true}
+                  handleRegenerate={() => handleRegenerate(parentCheckpoint)}
+                />
+              </div>
+            )}
           </>
         )}
       </div>

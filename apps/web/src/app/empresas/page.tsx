@@ -59,7 +59,11 @@ function EmpresasContent({
             <CardDescription>Entorno de demostración</CardDescription>
           </CardHeader>
           <CardFooter className="-mx-6 p-0 border-t bg-muted/30">
-            <Button variant="secondary" className="w-full rounded-b-xl" onClick={onOpenDemo}>
+            <Button
+              variant="default"
+              className="w-full rounded-[2rem] bg-black/80 text-white hover:bg-black/85"
+              onClick={onOpenDemo}
+            >
               Contexto
             </Button>
           </CardFooter>
@@ -83,7 +87,11 @@ function EmpresasContent({
             <CardDescription>Spirits & Wines · QRO-MX</CardDescription>
           </CardHeader>
           <CardFooter className="-mx-6 p-0 border-t bg-muted/30">
-            <Button variant="secondary" className="w-full rounded-b-xl" onClick={onOpenCoop}>
+            <Button
+              variant="default"
+              className="w-full rounded-[2rem] bg-black/80 text-white hover:bg-black/85"
+              onClick={onOpenCoop}
+            >
               Contexto
             </Button>
           </CardFooter>
@@ -106,7 +114,11 @@ function EmpresasContent({
             <CardDescription>Bebidas preparadas · JAL-MX</CardDescription>
           </CardHeader>
           <CardFooter className="-mx-6 p-0 border-t bg-muted/30">
-            <Button variant="secondary" className="w-full rounded-b-xl" onClick={onOpenPink}>
+            <Button
+              variant="default"
+              className="w-full rounded-[2rem] bg-black/80 text-white hover:bg-black/85"
+              onClick={onOpenPink}
+            >
               Contexto
             </Button>
           </CardFooter>
@@ -193,7 +205,7 @@ export default function EmpresasPage() {
     return (
       <>
         <Navbar />
-        <div className="container mx-auto px-4 py-10">Cargando...</div>
+        <div className="container mx-auto px-4 py-10" />
       </>
     );
   }
@@ -206,7 +218,7 @@ export default function EmpresasPage() {
     return (
       <>
         <Navbar />
-        <div className="container mx-auto px-4 py-10">Cargando...</div>
+        <div className="container mx-auto px-4 py-10" />
       </>
     );
   }

@@ -10,7 +10,7 @@ export function UserInfoSignOut() {
     return (
       <div className="mt-2 flex animate-pulse items-center gap-2">
         <div className="h-8 w-8 rounded-full bg-gray-200" />
-        <span className="text-sm text-gray-400">Cargando...</span>
+        {/* Loading skeleton without text to avoid flashing labels */}
       </div>
     );
   }

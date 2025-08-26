@@ -527,7 +527,7 @@ export function Thread() {
                           onRemove={removeBlock}
                           className="px-2 pt-2 pb-0"
                         />
-                        <div className="relative flex items-center gap-2 px-2.5 py-2">
+                        <div className="relative flex items-center gap-2 px-3.5 py-2">
                           {/* Left: Bases trigger + chips (content-sized, capped at 1/3) */}
                           <div className="flex items-center gap-2 max-w-[33%] min-w-0 flex-grow-0 flex-shrink">
                           {/* Database trigger and selection */}
