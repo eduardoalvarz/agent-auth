@@ -74,11 +74,11 @@ export function HumanMessage({
   return (
     <div
       className={cn(
-        "group ml-auto flex items-center gap-2",
+        "group ml-auto flex min-w-0 max-w-full items-center gap-2",
         isEditing && "w-full max-w-xl",
       )}
     >
-      <div className={cn("flex flex-col gap-2", isEditing && "w-full")}>
+      <div className={cn("flex min-w-0 w-full flex-col gap-2", isEditing && "w-full")}>
         {isEditing ? (
           <EditableContent
             value={value}
@@ -110,7 +110,7 @@ export function HumanMessage({
             )}
             {/* Render text if present, otherwise fallback to file/image name */}
             {contentString ? (
-              <p className="ml-auto m-0 w-fit rounded-3xl border-none px-4 py-2 text-right whitespace-pre-wrap text-sm bg-[#f5f5f5] text-zinc-900">
+              <p className="ml-auto m-0 w-fit max-w-full rounded-3xl border-none px-4 py-2 text-right whitespace-pre-wrap break-words text-sm bg-[#f5f5f5] text-zinc-900">
                 {contentString}
               </p>
             ) : null}

@@ -170,7 +170,8 @@ const ScrollableTable: FC<
     <div className="my-5 w-full">
       <div
         ref={containerRef}
-        className="w-full overflow-x-auto pb-2 scrollbar scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent"
+        className="w-full overflow-x-auto pb-2 touch-pan-x overscroll-contain scrollbar scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent"
+        style={{ WebkitOverflowScrolling: 'touch' }}
       >
         <table
           className={cn('min-w-max border-collapse', className)}
@@ -181,7 +182,7 @@ const ScrollableTable: FC<
       {overflowing && (
         <div
           ref={trackRef}
-          className="mt-1 h-2 w-full select-none rounded-none overflow-hidden bg-border"
+          className="mt-1 h-3 sm:h-2 w-full select-none rounded-none overflow-hidden bg-border cursor-pointer"
           onPointerDown={(e) => {
             draggingRef.current = true;
             setScrollByPointer(e.clientX);
@@ -196,9 +197,11 @@ const ScrollableTable: FC<
           }}
           role="scrollbar"
           aria-label="Desplazamiento horizontal de la tabla"
+          aria-orientation="horizontal"
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={percent}
+          tabIndex={0}
         >
           <div
             className="relative h-full"
