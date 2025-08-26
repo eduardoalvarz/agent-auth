@@ -170,7 +170,7 @@ const ScrollableTable: FC<
     <div className="my-5 w-full">
       <div
         ref={containerRef}
-        className="w-full overflow-x-auto pb-2 touch-pan-x overscroll-contain scrollbar scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent"
+        className="w-full overflow-x-auto pb-2 touch-pan-x touch-pan-y overscroll-x-contain scrollbar scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         <table

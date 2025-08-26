@@ -454,7 +454,7 @@ export function Thread() {
                 !chatStarted && "mt-[25vh] flex flex-col items-stretch",
                 chatStarted && "grid grid-rows-[1fr_auto]",
               )}
-              contentClassName="pt-8 pb-16  max-w-3xl mx-auto flex flex-col gap-4 w-full min-w-0"
+              contentClassName="pt-8 pb-8 sm:pb-12 lg:pb-16 max-w-3xl mx-auto flex flex-col gap-4 w-full min-w-0"
               content={
                 <>
                   {messages
@@ -511,7 +511,7 @@ export function Thread() {
                   <div
                     ref={dropRef}
                     className={cn(
-                      "relative z-10 mx-auto mb-4 w-full max-w-3xl rounded-[2rem] bg-transparent transition-all",
+                      "relative z-10 mx-auto mb-2 sm:mb-3 md:mb-4 w-full max-w-3xl rounded-[2rem] bg-transparent transition-all",
                       dragOver
                         ? "border-white/50 border-2 border-dotted p-1"
                         : undefined
@@ -529,7 +529,7 @@ export function Thread() {
                         />
                         <div className="relative flex items-center gap-2 px-3.5 py-2">
                           {/* Left: Bases trigger + chips (content-sized, capped at 1/3) */}
-                          <div className="flex items-center gap-2 max-w-[33%] min-w-0 flex-grow-0 flex-shrink">
+                          <div className="flex items-center gap-2 sm:max-w-[33%] min-w-0 flex-grow-0 flex-shrink">
                           {/* Database trigger and selection */}
                           <DropdownMenu.Root open={datasetsMenuOpen} onOpenChange={setDatasetsMenuOpen}>
                             <DropdownMenu.Trigger asChild>
@@ -537,9 +537,15 @@ export function Thread() {
                                 type="button"
                                 className="flex h-10 items-center gap-2 text-white/70 hover:text-white focus:outline-none"
                                 title="Seleccionar bases de datos"
+                                aria-label={selectedDatasets.length ? `${selectedDatasets.length} bases seleccionadas` : "Seleccionar bases de datos"}
                               >
                                 <Database className="size-4" />
                                 <span className="hidden sm:inline text-[11px] uppercase tracking-wide leading-5">Bases</span>
+                                {selectedDatasets.length > 0 && (
+                                  <span className="sm:hidden inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-white/20 text-[11px] leading-4 font-medium text-white/90">
+                                    {selectedDatasets.length}
+                                  </span>
+                                )}
                               </button>
                             </DropdownMenu.Trigger>
                             <DropdownMenu.Portal>
@@ -592,7 +598,7 @@ export function Thread() {
                           {/* Selected dataset chips (condensed) */}
                           {selectedDatasets.length > 0 && (
                             <div
-                              className="min-w-0 flex flex-wrap items-center gap-1"
+                              className="hidden sm:flex min-w-0 flex-wrap items-center gap-1"
                               aria-label={selectedSummary()}
                             >
                               {selectedDatasets.map((id) => (
