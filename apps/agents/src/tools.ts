@@ -2,18 +2,9 @@
  * This file defines the tools available to the ReAct agent.
  * Tools are functions that the agent can use to interact with external systems or perform specific tasks.
  */
-import { TavilySearchResults } from "@langchain/community/tools/tavily_search";
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
 import { bigquery } from "./bigqueryClient.js";
-
-/**
- * Tavily search tool configuration
- * This tool allows the agent to perform web searches using the Tavily API.
- */
-const searchTavily = new TavilySearchResults({
-  maxResults: 3,
-});
 
 /**
  * BigQuery configuration from environment variables
@@ -332,8 +323,4 @@ export const QueryTool = tool(
  * and add them to this array.
  * See https://js.langchain.com/docs/how_to/custom_tools/#tool-function for more information.
  */
-const ENABLE_WEB_SEARCH =
-  (process.env.ENABLE_WEB_SEARCH || "false").toLowerCase() === "true";
-export const TOOLS = ENABLE_WEB_SEARCH
-  ? [searchTavily, BigQueryTool, QueryTool]
-  : [BigQueryTool, QueryTool];
+export const TOOLS = [BigQueryTool, QueryTool];
