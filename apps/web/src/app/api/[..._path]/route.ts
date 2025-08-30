@@ -39,13 +39,15 @@ function forwardHeaders(req: NextRequest): Headers {
 
 async function handle(req: NextRequest, method: string): Promise<NextResponse> {
   // IMPORTANT: Use a server-only base URL to avoid proxy recursion
-  const apiUrl =
-    process.env.LANGGRAPH_API_URL ||
-    process.env.NEXT_PUBLIC_LANGGRAPH_API_URL ||
-    process.env.NEXT_PUBLIC_API_URL;
-  if (!apiUrl) {
+  let apiUrl = process.env.LANGGRAPH_API_URL || process.env.NEXT_PUBLIC_LANGGRAPH_API_URL;
+  // Validate absolute URL (must start with http/https)
+  const isAbsolute = typeof apiUrl === "string" && /^(https?:)\/\//i.test(apiUrl);
+  if (!apiUrl || !isAbsolute) {
     return NextResponse.json(
-      { error: "API URL is not configured" },
+      {
+        error:
+          "LANGGRAPH_API_URL is not configured or not absolute. Set a full https:// URL in server env.",
+      },
       { status: 500 },
     );
   }
