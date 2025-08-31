@@ -195,8 +195,8 @@ const StreamCore: React.FC<{
 };
 
 // Default values for the form
-const DEFAULT_API_URL = "https://bridge-ce2d35d633355c32aebc607a19c42e76.us.langgraph.app";
-const DEFAULT_ASSISTANT_ID = "coop";
+const DEFAULT_API_URL = "https://about-chat-efae22149131518cae4094f2526134ad.us.langgraph.app";
+const DEFAULT_ASSISTANT_ID = "aboutchat";
 // Do not store API keys in client code. Keys must be provided server-side.
 
 export const StreamProvider: React.FC<{ children: ReactNode }> = ({

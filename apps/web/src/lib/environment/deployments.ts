@@ -5,7 +5,7 @@ import { Deployment } from "@/app/types/deployment";
  * For local LangGraph dev server, we use static configuration
  */
 export function getLocalDeployments(): Deployment[] {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://bridge-ce2d35d633355c32aebc607a19c42e76.us.langgraph.app";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://about-chat-efae22149131518cae4094f2526134ad.us.langgraph.app";
 
   const defaultGraphId = process.env.NEXT_PUBLIC_ASSISTANT_ID || "aboutchat";
 

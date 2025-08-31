@@ -38,8 +38,8 @@ function getThreadSearchMetadata(
 export function ThreadProvider({ children }: { children: ReactNode }) {
   // Use same defaults as StreamProvider to keep behavior consistent
   const DEFAULT_API_URL =
-  "https://bridge-ce2d35d633355c32aebc607a19c42e76.us.langgraph.app";
-  const DEFAULT_ASSISTANT_ID = "coop";
+  "https://about-chat-efae22149131518cae4094f2526134ad.us.langgraph.app";
+  const DEFAULT_ASSISTANT_ID = "aboutchat";
   const isProd = process.env.NODE_ENV === "production";
 
   // Get environment variables
