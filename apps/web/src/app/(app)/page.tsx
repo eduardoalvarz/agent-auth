@@ -94,6 +94,7 @@ export default function DemoPage(): React.ReactNode {
               : { y: 0, opacity: 1, filter: "blur(0px)" }
           }
           transition={{ type: "spring", stiffness: 220, damping: 26, duration: 0.5 }}
+          className="h-[calc(100dvh-4rem)] min-h-0"
         >
           <ThreadProvider>
             <StreamProvider>
