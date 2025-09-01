@@ -942,7 +942,7 @@ export function Thread() {
                           }}
                           placeholder="Escribe..."
                           rows={1}
-                          className="field-sizing-content flex-1 min-h-[40px] resize-none border-none bg-transparent px-2 py-2 text-sm leading-5 text-white placeholder:text-white/60 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none max-h-36 overflow-y-auto caret-white selection:bg-white/10 selection:text-inherit"
+                          className="field-sizing-content flex-1 min-h-[40px] resize-none border-none bg-transparent px-2 py-2 text-base sm:text-sm leading-5 text-white placeholder:text-white/60 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none max-h-36 overflow-y-auto caret-white selection:bg-white/10 selection:text-inherit"
                         />
                           )}
                           <div className="ml-auto flex items-center gap-1.5">
