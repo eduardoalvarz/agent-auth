@@ -940,7 +940,7 @@ export function Thread() {
                               form?.requestSubmit();
                             }
                           }}
-                          placeholder="Escribe tu mensaje..."
+                          placeholder="Escribe..."
                           rows={1}
                           className="field-sizing-content flex-1 min-h-[40px] resize-none border-none bg-transparent px-2 py-2 text-sm leading-5 text-white placeholder:text-white/60 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none max-h-36 overflow-y-auto caret-white selection:bg-white/10 selection:text-inherit"
                         />
