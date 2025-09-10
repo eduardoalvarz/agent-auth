@@ -614,13 +614,12 @@ export function Thread() {
 
   // Allowed companies for the current user (enabled=true), from user_company_access via RLS
   const [allowedCompanySlugs, setAllowedCompanySlugs] = useState<Set<string>>(new Set());
-  const [allowedLoading, setAllowedLoading] = useState(true);
+  
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        setAllowedLoading(true);
         const supabase = getSupabaseClient();
         const { data, error } = await supabase
           .from("user_company_access")
@@ -637,8 +636,9 @@ export function Thread() {
             setAllowedCompanySlugs(new Set());
           }
         }
-      } finally {
-        if (!cancelled) setAllowedLoading(false);
+      } catch (err) {
+        // On failure, default to no allowed companies
+        if (!cancelled) setAllowedCompanySlugs(new Set());
       }
     })();
     return () => {
