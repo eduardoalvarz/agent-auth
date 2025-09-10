@@ -103,7 +103,7 @@ export function Thread() {
   );
   const [hideToolCalls, setHideToolCalls] = useQueryState(
     "hideToolCalls",
-    parseAsBoolean.withDefault(false),
+    parseAsBoolean.withDefault(true),
   );
   const [input, setInput] = useState<string>("");
   const {
@@ -592,13 +592,16 @@ export function Thread() {
       ],
     },
     { company: "DEMO", datasets: [] },
-    { company: "HÉRCULES", datasets: [] },
+    { company: "HÉRCULES", datasets: [
+      { id: "hercules_ventas", label: "hercules_ventas" },
+    ] },
     { company: "PINKCHELADAS", datasets: [] },
   ];
 
   const labelMap: Record<string, string> = {
     coop_sellout: "COOP sellout",
     coop_inventarios: "COOP inventarios",
+    hercules_ventas: "HÉRCULES Ventas",
   };
   
   // Map display name to slug used in DB (lowercase)

@@ -23,6 +23,16 @@ const cadenas     = clip(uniq.CADENA);
 const tiendas     = clip(uniq.TIENDA);
 const estados     = clip(uniq.ESTADO);
 
+// BigQuery dataset/table from environment (used only for display in prompt)
+const BQ_DATASET = process.env.BQ_DATASET || "";
+const BQ_TABLE = process.env.BQ_TABLE || "";
+const BQ_PROJECT_ID = process.env.BQ_PROJECT_ID
+  || process.env.GCP_PROJECT_ID
+  || process.env.GOOGLE_CLOUD_PROJECT
+  || process.env.GCLOUD_PROJECT
+  || "";
+const FQN = `${BQ_PROJECT_ID ? `${BQ_PROJECT_ID}.` : ""}${BQ_DATASET}.${BQ_TABLE}`.replace(/^\./, "");
+
 export const SYSTEM_PROMPT = `
 {user_info}
 
@@ -41,10 +51,12 @@ Fecha de referencia: **{time}**
 
 ────────────────────────────────────────────────────────
 ### FUENTE DE DATOS
-Todas las consultas **deben** ejecutarse exclusivamente contra la tabla
-BQ_DATASET="bridge_coop"
-BQ_TABLE="B2B_SO"
-**No** permitas el uso de ninguna otra tabla o vista.
+Todas las consultas **deben** ejecutarse exclusivamente contra la tabla configurada
+por entorno:
+BQ_DATASET="${BQ_DATASET}"
+BQ_TABLE="${BQ_TABLE}"
+FQN: ${FQN}
+No permitas el uso de ninguna otra tabla o vista.
 
 ────────────────────────────────────────────────────────
 ### OBJETIVO

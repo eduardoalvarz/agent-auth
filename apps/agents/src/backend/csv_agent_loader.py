@@ -2,7 +2,9 @@ import pandas as pd
 import json
 from pathlib import Path
 
-CSV_FILE = "/Users/eduardo/agent-chat-app/apps/agents/src/my-sales-agent/backend/data/main_B2B_SO (8).csv"
+# Default CSV path: Hercules sellout sample in this repo
+BASE_DIR = Path(__file__).resolve().parent
+CSV_FILE = BASE_DIR / "hercules_cadenas_SO.csv"
 
 class CSVAgent:
     def __init__(self, csv_path: Path = CSV_FILE):
@@ -52,5 +54,5 @@ class CSVAgent:
         return json.dumps(self.uniques, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
-    agent = CSVAgent()
-    Path("unique_values.json").write_text(agent.export_uniques(), encoding="utf-8")
+    agent = CSVAgent(CSV_FILE)
+    (BASE_DIR / "unique_values.json").write_text(agent.export_uniques(), encoding="utf-8")

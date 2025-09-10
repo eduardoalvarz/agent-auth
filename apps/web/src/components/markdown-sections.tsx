@@ -80,6 +80,14 @@ export default function MarkdownSections({
   );
 
   const [openMap, setOpenMap] = React.useState<Record<string, boolean>>({});
+  // Use a stable key for defaultOpenTitles to avoid effect running on every render
+  const defaultOpenKey = React.useMemo(
+    () => (defaultOpenTitles && defaultOpenTitles.length ? defaultOpenTitles.join("||") : ""),
+    // Only depend on the array contents, not the reference identity
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(defaultOpenTitles || [])],
+  );
+
   React.useEffect(() => {
     const initial: Record<string, boolean> = {};
     let persisted: Record<string, boolean> | null = null;
@@ -95,8 +103,12 @@ export default function MarkdownSections({
       const fromStorage = persisted ? persisted[s.id] : undefined;
       initial[s.id] = typeof fromStorage === "boolean" ? fromStorage : defaultOpenTitles.includes(s.title);
     }
-    setOpenMap(initial);
-  }, [sections, defaultOpenTitles, storageKey]);
+    // Avoid unnecessary state updates (which can trigger re-renders)
+    const same = Object.keys(initial).length === Object.keys(openMap).length &&
+      Object.keys(initial).every((k) => openMap[k] === initial[k]);
+    if (!same) setOpenMap(initial);
+    // We intentionally depend on defaultOpenKey (stable string) instead of the array identity
+  }, [sections, storageKey, defaultOpenKey]);
 
   React.useEffect(() => {
     if (typeof window === "undefined" || !storageKey) return;
