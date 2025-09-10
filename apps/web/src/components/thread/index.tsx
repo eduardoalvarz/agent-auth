@@ -54,7 +54,14 @@ function StickyToBottomContent(props: {
   return (
     <div
       ref={context.scrollRef}
-      style={{ width: "100%", height: "100%", WebkitOverflowScrolling: "touch" }}
+      style={{
+        width: "100%",
+        height: "100%",
+        WebkitOverflowScrolling: "touch",
+        paddingLeft: "max(env(safe-area-inset-left), 0px)",
+        paddingRight: "max(env(safe-area-inset-right), 0px)",
+        paddingBottom: "max(env(safe-area-inset-bottom), 0px)",
+      }}
       className={props.className}
     >
       <div
@@ -585,6 +592,7 @@ export function Thread() {
       ],
     },
     { company: "DEMO", datasets: [] },
+    { company: "HÉRCULES", datasets: [] },
     { company: "PINKCHELADAS", datasets: [] },
   ];
 
@@ -592,6 +600,53 @@ export function Thread() {
     coop_sellout: "COOP sellout",
     coop_inventarios: "COOP inventarios",
   };
+  
+  // Map display name to slug used in DB (lowercase)
+  const COMPANY_SLUG_FOR_DISPLAY: Record<string, string> = {
+    COOP: "coop",
+    DEMO: "demo",
+    "HÉRCULES": "hercules",
+    PINKCHELADAS: "pinkcheladas",
+  };
+
+  // Allowed companies for the current user (enabled=true), from user_company_access via RLS
+  const [allowedCompanySlugs, setAllowedCompanySlugs] = useState<Set<string>>(new Set());
+  const [allowedLoading, setAllowedLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        setAllowedLoading(true);
+        const supabase = getSupabaseClient();
+        const { data, error } = await supabase
+          .from("user_company_access")
+          .select("company_slug, enabled")
+          .eq("enabled", true);
+        if (!cancelled) {
+          if (!error && data) {
+            setAllowedCompanySlugs(
+              new Set(
+                data.map((r: any) => String(r.company_slug || "").toLowerCase()),
+              ),
+            );
+          } else {
+            setAllowedCompanySlugs(new Set());
+          }
+        }
+      } finally {
+        if (!cancelled) setAllowedLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const VISIBLE_GROUPS = DATASET_GROUPS.filter((group) => {
+    const slug = COMPANY_SLUG_FOR_DISPLAY[group.company];
+    return slug ? allowedCompanySlugs.has(slug) : false;
+  });
   const selectedSummary = () => {
     if (!selectedDatasets.length) return "Selecciona una base de datos";
     return selectedDatasets
@@ -749,7 +804,7 @@ export function Thread() {
                 !chatStarted && "mt-[25vh] flex flex-col items-stretch",
                 chatStarted && "grid grid-rows-[1fr_auto]",
               )}
-              contentClassName="pt-8 pb-8 sm:pb-12 lg:pb-16 max-w-3xl mx-auto flex flex-col gap-3 w-full min-w-0"
+              contentClassName="pt-8 pb-28 sm:pb-12 lg:pb-16 max-w-3xl mx-auto flex flex-col gap-3 w-full min-w-0"
               content={
                 <>
                   {messages
@@ -786,7 +841,14 @@ export function Thread() {
                 </>
               }
               footer={
-                <div className="sticky bottom-0 flex flex-col items-center bg-white" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0px)' }}>
+                <div
+                  className="sticky bottom-0 flex flex-col items-center bg-white"
+                  style={{
+                    paddingBottom: 'max(env(safe-area-inset-bottom), 0px)',
+                    paddingLeft: 'max(env(safe-area-inset-left), 0px)',
+                    paddingRight: 'max(env(safe-area-inset-right), 0px)',
+                  }}
+                >
                   {!chatStarted && (
                     <div className="flex flex-col items-center gap-0 mb-6">
                       <div className="flex items-center gap-2">
@@ -852,7 +914,7 @@ export function Thread() {
                                 collisionPadding={24}
                                 className="z-50 min-w-[220px] rounded-3xl border border-white/15 bg-black/80 backdrop-blur-sm text-white p-1.5 shadow-lg shadow-black/30 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
                               >
-                                {DATASET_GROUPS.map((group, gi) => (
+                                {VISIBLE_GROUPS.map((group, gi) => (
                                   <div key={group.company} className="px-1 py-0.5">
                                     <DropdownMenu.Label className="px-2 py-1 text-[10px] uppercase tracking-wide text-white/50">
                                       {group.company}
@@ -940,7 +1002,7 @@ export function Thread() {
                               form?.requestSubmit();
                             }
                           }}
-                          placeholder="Escribe..."
+                          placeholder="Pregunta lo que quieras..."
                           rows={1}
                           className="field-sizing-content flex-1 min-h-[40px] resize-none border-none bg-transparent px-2 py-2 text-base sm:text-sm leading-5 text-white placeholder:text-white/60 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none max-h-36 overflow-y-auto caret-white selection:bg-white/10 selection:text-inherit"
                         />

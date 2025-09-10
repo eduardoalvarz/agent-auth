@@ -15,12 +15,14 @@ function EmpresasContent({
   exiting,
   onOpenDemo,
   onOpenCoop,
+  onOpenHerc,
   onOpenPink,
   allowed,
 }: {
   exiting: boolean;
   onOpenDemo: () => void;
   onOpenCoop: () => void;
+  onOpenHerc: () => void;
   onOpenPink: () => void;
   allowed: Set<string>;
 }) {
@@ -69,6 +71,34 @@ function EmpresasContent({
           </CardFooter>
         </Card>
 
+        <Card className="group rounded-xl border shadow-sm overflow-hidden bg-gradient-to-b from-card to-muted/20 transition-transform hover:-translate-y-1 hover:shadow-lg hover:border-primary/30" style={{ display: allowed.has("hercules") ? undefined : "none" }}>
+          <CardHeader className="flex flex-col items-center gap-4 py-6">
+            <div className="h-24 w-24 md:h-28 md:w-28 overflow-hidden rounded-full bg-gradient-to-b from-muted/70 to-muted/50 flex items-center justify-center ring-2 ring-primary/10 ring-offset-2 ring-offset-background shadow-sm transition duration-200 group-hover:ring-primary/30">
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4pxdojlZQpHEyvMBxtCU2KMllJLCeobcaXA&s"
+                alt="HÉRCULES"
+                className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                loading="lazy"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            <div className="flex w-full items-center justify-between">
+              <CardTitle>HÉRCULES</CardTitle>
+              <Switch aria-label="Activar HÉRCULES" />
+            </div>
+            <CardDescription>BEER · QRO-MX</CardDescription>
+          </CardHeader>
+          <CardFooter className="-mx-6 p-0 border-t bg-muted/30">
+            <Button
+              variant="default"
+              className="w-full rounded-[2rem] bg-black/80 text-white hover:bg-black/85"
+              onClick={onOpenHerc}
+            >
+              Contexto
+            </Button>
+          </CardFooter>
+        </Card>
+
         <Card className="group rounded-xl border shadow-sm overflow-hidden bg-gradient-to-b from-card to-muted/20 transition-transform hover:-translate-y-1 hover:shadow-lg hover:border-primary/30" style={{ display: allowed.has("coop") ? undefined : "none" }}>
           <CardHeader className="flex flex-col items-center gap-4 py-6">
             <div className="h-24 w-24 md:h-28 md:w-28 overflow-hidden rounded-full bg-gradient-to-b from-muted/70 to-muted/50 flex items-center justify-center ring-2 ring-primary/10 ring-offset-2 ring-offset-background shadow-sm transition duration-200 group-hover:ring-primary/30">
@@ -100,7 +130,7 @@ function EmpresasContent({
           <CardHeader className="flex flex-col items-center gap-4 py-6">
             <div className="h-24 w-24 md:h-28 md:w-28 overflow-hidden rounded-full bg-gradient-to-b from-muted/70 to-muted/50 flex items-center justify-center ring-2 ring-primary/10 ring-offset-2 ring-offset-background shadow-sm transition duration-200 group-hover:ring-primary/30">
               <img
-                src="https://scontent.fqro3-1.fna.fbcdn.net/v/t39.30808-6/398453450_738447401719127_8797079877979096996_n.png?_nc_cat=104&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeEdoBCMrZoRSrF0Sy4Tu3rjwzCqukaCMejDMKq6RoIx6Cqxyhq3okbsnoeh3BuRFGwpFc93-kphNRShRM9dgF_P&_nc_ohc=KQgg2UXEUPcQ7kNvwFhqjID&_nc_oc=Adn5tPa4bPas3CLn0qA004JVYA2YDRTU4GM798kCznBpZ78dXoEZq-D7uqymyVOoV21xsG9iLm93fy1Hjain8WGn&_nc_zt=23&_nc_ht=scontent.fqro3-1.fna&_nc_gid=p_buB0fZBO3mh7ibdp081w&oh=00_AfVGIBTbsiIEc_6k4FNOclBeeL0Zf_8O0zGM5bczaDJLmw&oe=68B017B8"
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcToTrsVpIKGqNFFfYsmi4JP3qoe9l04XImLlA&s"
                 alt="PINKCHELADAS"
                 className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
                 loading="lazy"
@@ -133,10 +163,13 @@ export default function EmpresasPage() {
   const router = useRouter();
   const [exiting, setExiting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState<"DEMO" | "COOP" | "PINKCHELADAS" | null>(null);
+  const [selectedCompany, setSelectedCompany] = useState<"DEMO" | "COOP" | "HERCULES" | "PINKCHELADAS" | null>(null);
   const [coopLoading, setCoopLoading] = useState(false);
   const [coopContent, setCoopContent] = useState<string | null>(null);
   const [coopError, setCoopError] = useState<string | null>(null);
+  const [hercLoading, setHercLoading] = useState(false);
+  const [hercContent, setHercContent] = useState<string | null>(null);
+  const [hercError, setHercError] = useState<string | null>(null);
   const [allowed, setAllowed] = useState<Set<string>>(new Set());
   const [allowedLoading, setAllowedLoading] = useState(true);
 
@@ -163,11 +196,29 @@ export default function EmpresasPage() {
     }
   };
 
-  const openDialog = async (company: "DEMO" | "COOP" | "PINKCHELADAS") => {
+  const ensureHercContent = async () => {
+    if (hercContent || hercLoading) return;
+    setHercLoading(true);
+    setHercError(null);
+    try {
+      const res = await fetch("/api/empresas/hercules", { cache: "no-store" });
+      if (!res.ok) throw new Error("fetch_failed");
+      const text = await res.text();
+      setHercContent(text);
+    } catch {
+      setHercError("No se pudo cargar el contexto de HÉRCULES.");
+    } finally {
+      setHercLoading(false);
+    }
+  };
+
+  const openDialog = async (company: "DEMO" | "COOP" | "HERCULES" | "PINKCHELADAS") => {
     setSelectedCompany(company);
     setDialogOpen(true);
     if (company === "COOP") {
       ensureCoopContent();
+    } else if (company === "HERCULES") {
+      ensureHercContent();
     }
   };
 
@@ -230,6 +281,7 @@ export default function EmpresasPage() {
         exiting={exiting}
         onOpenDemo={() => openDialog("DEMO")}
         onOpenCoop={() => openDialog("COOP")}
+        onOpenHerc={() => openDialog("HERCULES")}
         onOpenPink={() => openDialog("PINKCHELADAS")}
         allowed={allowed}
       />
@@ -251,6 +303,21 @@ export default function EmpresasPage() {
                   splitLevel={3}
                   maxWidthClass="max-w-[640px]"
                   storageKey="empresas:coop:sections:v1"
+                />
+              ) : (
+                <div className="text-muted-foreground">No hay contenido disponible.</div>
+              )
+            ) : selectedCompany === "HERCULES" ? (
+              hercLoading ? (
+                <div>Cargando…</div>
+              ) : hercError ? (
+                <div className="text-destructive">{hercError}</div>
+              ) : hercContent && hercContent.trim().length > 0 ? (
+                <MarkdownSections
+                  content={hercContent}
+                  splitLevel={3}
+                  maxWidthClass="max-w-[640px]"
+                  storageKey="empresas:hercules:sections:v1"
                 />
               ) : (
                 <div className="text-muted-foreground">No hay contenido disponible.</div>
