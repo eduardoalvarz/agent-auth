@@ -40,7 +40,7 @@ function forwardHeaders(req: NextRequest): Headers {
 async function handle(req: NextRequest, method: string): Promise<NextResponse> {
   // IMPORTANT: Use a server-only base URL to avoid proxy recursion
   const apiUrl = process.env.LANGGRAPH_API_URL || process.env.NEXT_PUBLIC_LANGGRAPH_API_URL;
-  // Validate absolute URL (must start with http/https)
+  // Validate absolute URL (must start with http/https
   const isAbsolute = typeof apiUrl === "string" && /^(https?:)\/\//i.test(apiUrl);
   if (!apiUrl || !isAbsolute) {
     return NextResponse.json(
