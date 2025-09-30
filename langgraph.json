@@ -6,6 +6,8 @@
     "graphs": {
       "aboutchat": "./apps/agents/src/graph.ts:graph"
     },
-    "env": ".env"
+    "env": "./apps/agents/.env",
+    "auth": {
+      "path": "./apps/agents/src/security/auth.ts:auth"
+    }
   }
-  

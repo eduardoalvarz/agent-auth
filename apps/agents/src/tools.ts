@@ -323,4 +323,4 @@ export const QueryTool = tool(
  * and add them to this array.
  * See https://js.langchain.com/docs/how_to/custom_tools/#tool-function for more information.
  */
-export const TOOLS = [BigQueryTool, QueryTool];
+export const TOOLS = [BigQueryTool];
