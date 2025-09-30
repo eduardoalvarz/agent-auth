@@ -4,13 +4,15 @@ import { NextRequest, NextResponse } from "next/server";
 // Read the [Going to Production](https://github.com/langchain-ai/agent-chat-ui?tab=readme-ov-file#going-to-production) section for more information.
 
 export const runtime = "edge";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function getCorsHeaders(origin?: string | null) {
   return {
     "Access-Control-Allow-Origin": origin || "*",
     "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
     "Access-Control-Allow-Headers":
-      "Authorization, X-Supabase-Access-Token, Content-Type, X-API-Key, X-Requested-With, Accept",
+      "Authorization, X-Supabase-Access-Token, Content-Type, X-Requested-With, Accept",
   } as Record<string, string>;
 }
 
@@ -29,11 +31,9 @@ function forwardHeaders(req: NextRequest): Headers {
   const auth = req.headers.get("authorization");
   const sb = req.headers.get("x-supabase-access-token");
   const ct = req.headers.get("content-type");
-  const xApiKey = req.headers.get("x-api-key") ?? process.env.LANGSMITH_API_KEY;
   if (auth) out.set("authorization", auth);
   if (sb) out.set("x-supabase-access-token", sb);
   if (ct) out.set("content-type", ct);
-  if (xApiKey) out.set("x-api-key", xApiKey);
   return out;
 }
 
@@ -61,8 +61,16 @@ async function handle(req: NextRequest, method: string): Promise<NextResponse> {
       // Preserve raw body
       init.body = await req.text();
     }
+    // Always bypass caches when proxying authenticated user traffic
+    (init as any).cache = "no-store";
     const res = await fetch(target, init);
     const headers = new Headers(res.headers);
+    // Ensure responses are not cached or shared across users
+    headers.set("Cache-Control", "no-store");
+    // Vary on auth headers to avoid CDN/proxy sharing
+    const vary = headers.get("Vary");
+    const neededVary = "Authorization, X-Supabase-Access-Token, Origin, Accept";
+    headers.set("Vary", vary ? `${vary}, ${neededVary}` : neededVary);
     const resp = new NextResponse(res.body, {
       status: res.status,
       statusText: res.statusText,
@@ -103,3 +111,4 @@ export function PATCH(req: NextRequest) {
 export function DELETE(req: NextRequest) {
   return handle(req, "DELETE");
 }
+

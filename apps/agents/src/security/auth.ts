@@ -13,7 +13,8 @@ const isStudioUser = (userIdentity: string): boolean => {
 
 // Helper function for operations that only need owner filtering
 const createOwnerFilter = (user: { identity: string }) => {
-  if (isStudioUser(user.identity)) {
+  // Never bypass owner scoping in production
+  if (isStudioUser(user.identity) && process.env.NODE_ENV !== "production") {
     return;
   }
   return { owner: user.identity };
@@ -21,13 +22,12 @@ const createOwnerFilter = (user: { identity: string }) => {
 
 // Helper function for create operations that set metadata
 const createWithOwnerMetadata = (value: any, user: { identity: string }) => {
-  if (isStudioUser(user.identity)) {
-    return;
+  // Never bypass owner scoping in production
+  if (!(isStudioUser(user.identity) && process.env.NODE_ENV !== "production")) {
+    value.metadata ??= {};
+    value.metadata.owner = user.identity;
+    return { owner: user.identity };
   }
-
-  value.metadata ??= {};
-  value.metadata.owner = user.identity;
-  return { owner: user.identity };
 };
 
 export const auth = new Auth()
